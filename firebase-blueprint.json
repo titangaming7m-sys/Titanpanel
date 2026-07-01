@@ -1,0 +1,22 @@
+{
+  "entities": {
+    "app_state": {
+      "title": "AppState",
+      "description": "The complete settings, panels, and logs for the Panel Download Center",
+      "type": "object",
+      "properties": {
+        "settings": { "type": "object" },
+        "panels": { "type": "object" },
+        "admin": { "type": "object" },
+        "downloads": { "type": "array" }
+      },
+      "required": ["settings", "panels", "admin", "downloads"]
+    }
+  },
+  "firestore": {
+    "app_data/state": {
+      "schema": "app_state",
+      "description": "Central state document containing portal settings, panels, administrator hashed passwords, and logs."
+    }
+  }
+}

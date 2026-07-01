@@ -1,0 +1,116 @@
+{
+  "settings": {
+    "websiteName": "TITAN PANEL",
+    "logoUrl": "",
+    "bannerUrl": "",
+    "footerText": "© 2026 Panel Download Center. All Rights Reserved.",
+    "socialLinks": {
+      "telegram": "https://t.me",
+      "twitter": "https://twitter.com",
+      "github": "https://github.com",
+      "discord": "https://discord.gg"
+    },
+    "contactEmail": "support@paneldownloadcenter.com",
+    "contactTelegram": "https://t.me/panelsupport",
+    "contactWhatsApp": "https://wa.me/1234567890",
+    "contactWhatsAppGroup": "https://chat.whatsapp.com/sample-group-link",
+    "whatsappNumber": "1234567890",
+    "telegramUsername": "panelsupport_bot",
+    "chatbotEnabled": true,
+    "chatbotWelcomeMessage": "Hi! Have any questions or need custom setup support? Reach out directly using our official channels below:",
+    "whatsappBotEnabled": true,
+    "telegramBotEnabled": true,
+    "totalVisitors": 1024,
+    "activeTheme": "sunset-crimson",
+    "activeEffect": "none",
+    "customPrimary": "#dc2626",
+    "customSecondary": "#ea580c",
+    "customAccent": "#f59e0b",
+    "customBg": "#0c0404",
+    "customCardBg": "#1c0c0c",
+    "effectIntensity": 50,
+    "loadingLogoUrl": ""
+  },
+  "panels": {
+    "pc": {
+      "downloadCount": 1450,
+      "title": "PC Panel",
+      "id": "pc",
+      "fileSize": "15.4 MB",
+      "enabled": true,
+      "version": "v2.5.1",
+      "lastUpdated": "June 25, 2026",
+      "downloadUrl": "/uploads/pc_panel_default.zip",
+      "features": [
+        "Instant Injector",
+        "Custom Floating Menu",
+        "System Opt Keybinds",
+        "FPS Overlay Mode"
+      ],
+      "imageUrl": "Monitor",
+      "description": "Ultimate overlay and settings optimizer for desktop PCs. Experience buttery smooth performance and extensive customizations."
+    },
+    "mobile": {
+      "enabled": true,
+      "version": "v1.8.0",
+      "fileSize": "8.2 MB",
+      "id": "mobile",
+      "downloadCount": 3120,
+      "title": "Mobile Panel",
+      "downloadUrl": "/uploads/mobile_panel_default.apk",
+      "lastUpdated": "June 28, 2026",
+      "description": "Premium floating mod menu APK for android devices. Optimized for high refresh rate mobile screens.",
+      "imageUrl": "Smartphone",
+      "features": [
+        "Anti-Ban Protection",
+        "Floating Control Bar",
+        "Zero Root Needed",
+        "Battery Saver Mode"
+      ]
+    },
+    "free": {
+      "downloadCount": 5690,
+      "title": "Free Panel",
+      "id": "free",
+      "fileSize": "5.1 MB",
+      "version": "v1.0.0",
+      "enabled": true,
+      "lastUpdated": "June 10, 2026",
+      "downloadUrl": "/uploads/free_panel_default.zip",
+      "features": [
+        "Clean Interface",
+        "Basic Controls",
+        "Community Support"
+      ],
+      "imageUrl": "Gift",
+      "description": "Get started immediately with our free layout customizer. Secure and completely free forever."
+    }
+  },
+  "admin": {
+    "username": "admin",
+    "passwordHash": "$2b$10$FOa5ht8pM7/bPXmphMFvgukZ3JqzH9sTbTAbxQRide3sUW8eenb4y"
+  },
+  "downloads": [
+    {
+      "timestamp": "2026-07-01T00:27:35.557Z",
+      "id": "1",
+      "ip": "127.0.0.1",
+      "panelId": "mobile",
+      "userAgent": "Mozilla"
+    },
+    {
+      "timestamp": "2026-07-01T00:22:25.558Z",
+      "id": "2",
+      "userAgent": "Chrome",
+      "ip": "192.168.1.10",
+      "panelId": "pc"
+    },
+    {
+      "userAgent": "Safari",
+      "panelId": "free",
+      "ip": "8.8.8.8",
+      "id": "3",
+      "timestamp": "2026-07-01T00:13:25.558Z"
+    }
+  ]
+}
