@@ -365,304 +365,289 @@ export default function App() {
         <>
           {/* Top Header / Branding Bar */}
           <header className="sticky top-0 z-40 backdrop-blur-md bg-black/40 border-b border-white/10 theme-custom-border relative">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="#home" className="flex items-center gap-3 group">
-            {logoUrl ? (
-              <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover border border-white/20" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg text-white font-black text-sm tracking-widest shadow-md">
-                PDC
-              </div>
-            )}
-            <span className="font-extrabold text-lg text-white tracking-tight group-hover:text-indigo-400 transition-colors">
-              {siteName}
-            </span>
-          </a>
-
-          {/* Desktop Nav links */}
-          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-wide uppercase text-gray-300 font-mono">
-            <a href="#home" className="hover:text-white transition-colors">Home</a>
-            <a href="#panel-card-pc" className="hover:text-white transition-colors">PC Panel</a>
-            <a href="#panel-card-mobile" className="hover:text-white transition-colors">Mobile Panel</a>
-            <a href="#panel-card-free" className="hover:text-white transition-colors">Free Panel</a>
-            <a
-              href="#admin"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 theme-custom-btn-secondary"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Admin Gateway</span>
-            </a>
-          </nav>
-
-          {/* Mobile menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-gray-400 hover:text-white"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile menu Drawer */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-white/10 bg-slate-950 p-6 flex flex-col gap-4 text-sm font-semibold tracking-wide uppercase font-mono">
-            <a href="#home" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Home</a>
-            <a href="#panel-card-pc" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">PC Panel</a>
-            <a href="#panel-card-mobile" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Mobile Panel</a>
-            <a href="#panel-card-free" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white">Free Panel</a>
-            <a
-              href="#admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all text-xs theme-custom-btn-primary"
-            >
-              <Lock className="w-4 h-4" />
-              <span>Admin Gateway</span>
-            </a>
-          </div>
-        )}
-      </header>
-
-      {/* Hero Banner Section */}
-      <section className="relative py-20 px-6 overflow-hidden">
-        {/* Banner background - custom uploaded banner or a beautiful default gradient backing */}
-        {bannerUrl ? (
-          <div className="absolute inset-0 w-full h-full pointer-events-none">
-            <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover opacity-20 blur-sm" referrerPolicy="no-referrer" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />
-          </div>
-        ) : (
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-        )}
-
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
-            Premium Panel <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%)' }}>Download Center</span>
-          </h1>
-          <p className="text-md sm:text-lg text-gray-400 mt-6 max-w-2xl mx-auto leading-relaxed">
-            Unleash maximum overlay customization, anti-lag custom binds, and frame rate optimization. Get the latest verified layouts for PC and Mobile devices instantly.
-          </p>
-
-          {/* Core Search bar */}
-          <div className="mt-10 max-w-md mx-auto">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
-                <Search className="w-5 h-5" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search panel features or version codes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-white/5 backdrop-blur-md border rounded-full text-white placeholder-gray-500 text-sm focus:outline-none transition-all"
-                style={{
-                  borderColor: searchQuery ? 'var(--theme-primary)' : 'rgba(255,255,255,0.1)',
-                  boxShadow: searchQuery ? '0 0 15px rgba(var(--theme-primary-rgb), 0.15)' : 'none'
-                }}
-              />
-            </div>
-            {searchQuery && (
-              <p className="text-[11px] font-mono mt-2 theme-custom-text-primary">
-                Filtering panel cards for "{searchQuery}"
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Main Grid Section */}
-      <section className="max-w-7xl mx-auto px-6 py-8 w-full flex-1">
-        {filteredPanels.length === 0 ? (
-          <div className="text-center p-12 bg-slate-900/40 border border-white/5 rounded-3xl">
-            <ShieldAlert className="w-12 h-12 text-yellow-500/70 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-white">No panels match your query</h3>
-            <p className="text-xs text-gray-500 mt-1">Try refining your search text or clear query to list all options.</p>
-            <button
-              onClick={() => setSearchQuery('')}
-              className="mt-4 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-300 hover:text-white"
-            >
-              Reset Search Filter
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
-            {filteredPanels.map((panel) => (
-              <PanelCard 
-                key={panel.id} 
-                panel={panel} 
-                onDownload={handleDownloadTrigger} 
-                whatsAppGroupUrl={contactWhatsAppGroup} 
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Secure footer */}
-      <footer className="bg-black/40 border-t border-white/10 mt-auto py-12 px-6 theme-custom-border relative">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            {logoUrl ? (
-              <img src={logoUrl} alt="Logo" className="w-6 h-6 rounded object-cover" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-6 h-6 bg-indigo-500 rounded flex items-center justify-center text-[10px] text-white font-bold">
-                P
-              </div>
-            )}
-            <span className="text-xs text-gray-400 font-bold font-mono">
-              {siteName}
-            </span>
-          </div>
-
-          <p className="text-[11px] text-gray-500 text-center font-mono">
-            {footerText}
-          </p>
-
-          {/* Social media connections */}
-          <div className="flex items-center gap-4">
-            {socialLinks.github && (
-              <a href={socialLinks.github} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="GitHub">
-                <Github className="w-4 h-4" />
+            <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+              <a href="#home" className="flex items-center gap-3 group">
+                {logoUrl ? (
+                  <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover border border-white/20" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg text-white font-black text-sm tracking-widest shadow-md">
+                    PDC
+                  </div>
+                )}
+                <span className="font-extrabold text-lg text-white tracking-tight group-hover:text-indigo-400 transition-colors">
+                  {siteName}
+                </span>
               </a>
-            )}
-            {socialLinks.discord && (
-              <a href={socialLinks.discord} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="Discord">
-                <MessageSquare className="w-4 h-4" />
-              </a>
-            )}
-            {socialLinks.twitter && (
-              <a href={socialLinks.twitter} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="Twitter">
-                <Twitter className="w-4 h-4" />
-              </a>
-            )}
-            {socialLinks.telegram && (
-              <a href={socialLinks.telegram} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="Telegram">
-                <Send className="w-4 h-4" />
-              </a>
-            )}
-          </div>
-        </div>
-      </footer>
 
-      {/* Floating Chatbot-style Support Widget */}
-      {chatbotEnabled && (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-          <AnimatePresence>
-            {chatOpen && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.85, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.85, y: 20 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="w-80 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden text-left"
+              {/* Desktop Nav links */}
+              <nav className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-wide uppercase text-gray-300 font-mono">
+                <a
+                  href="#admin"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 theme-custom-btn-secondary"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Admin Gateway</span>
+                </a>
+              </nav>
+
+              {/* Mobile menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-gray-400 hover:text-white"
               >
-                {/* Header */}
-                <div className="p-4 bg-gradient-to-r from-indigo-600/80 to-purple-600/80 border-b border-white/10 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
-                        <MessageSquare className="w-4 h-4 text-indigo-300" />
-                      </div>
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900 animate-ping" />
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-white tracking-wide">Live Support Chat</h4>
-                      <p className="text-[9px] text-indigo-200 font-mono flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full inline-block animate-pulse" /> Support is Online
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setChatOpen(false)}
-                    className="p-1 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-all cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
 
-                {/* Body */}
-                <div className="p-4 space-y-4">
-                  <p className="text-[11px] text-gray-300 leading-relaxed bg-white/5 p-3 rounded-xl border border-white/5">
-                    {chatbotWelcomeMessage}
-                  </p>
-
-                  {/* Branded Channels inside Chatbot */}
-                  <div className="space-y-2.5">
-                    {telegramBotEnabled && (
-                      <a
-                        href={telegramLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-indigo-500/10 border border-white/5 hover:border-indigo-500/20 transition-all group"
-                      >
-                        <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:bg-purple-500/20 transition-all border border-purple-500/10">
-                          <Send className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">Telegram Support Bot</span>
-                            <ExternalLink className="w-3 h-3 text-gray-500 group-hover:text-purple-400 transition-colors" />
-                          </div>
-                          <p className="text-[10px] text-gray-400">@{(telegramUsername || 'panelsupport_bot').replace(/^@/, '')}</p>
-                        </div>
-                      </a>
-                    )}
-
-                    {whatsappBotEnabled && (
-                      <a
-                        href={whatsappLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/20 transition-all group"
-                      >
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 transition-all border border-emerald-500/10">
-                          <MessageCircle className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">WhatsApp Chatbot</span>
-                            <ExternalLink className="w-3 h-3 text-gray-500 group-hover:text-emerald-400 transition-colors" />
-                          </div>
-                          <p className="text-[10px] text-gray-400">Chat with support bot</p>
-                        </div>
-                      </a>
-                    )}
-
-                    {!telegramBotEnabled && !whatsappBotEnabled && (
-                      <div className="text-center py-4 text-xs text-gray-500 font-mono">
-                        No active support bot channels.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="px-4 py-2 bg-slate-950/40 border-t border-white/5 text-center">
-                  <span className="text-[9px] text-gray-500 font-mono">Typically responds in under 5 minutes</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Main Floating Trigger Button */}
-          <button
-            onClick={() => setChatOpen(!chatOpen)}
-            className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer relative group border border-white/10 theme-custom-btn-primary"
-            aria-label="Toggle support chat"
-          >
-            {chatOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <div className="relative">
-                <MessageSquare className="w-6 h-6" />
-                {/* Pulsing indicator when closed */}
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-400 rounded-full border border-indigo-600 animate-ping" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-400 rounded-full border border-indigo-600" />
+            {/* Mobile menu Drawer */}
+            {mobileMenuOpen && (
+              <div className="md:hidden border-t border-white/10 bg-slate-950 p-6 flex flex-col gap-4 text-sm font-semibold tracking-wide uppercase font-mono">
+                <a
+                  href="#admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all text-xs theme-custom-btn-primary"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>Admin Gateway</span>
+                </a>
               </div>
             )}
-          </button>
-        </div>
-      )}
+          </header>
+
+          {/* Hero Banner Section */}
+          <section className="relative py-12 px-6 overflow-hidden">
+            {/* Banner background - custom uploaded banner or a beautiful default gradient backing */}
+            {bannerUrl ? (
+              <div className="absolute inset-0 w-full h-full pointer-events-none">
+                <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover opacity-20 blur-sm" referrerPolicy="no-referrer" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />
+              </div>
+            ) : (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[250px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+            )}
+
+            <div className="max-w-4xl mx-auto text-center relative z-10">
+              {/* Core Search bar */}
+              <div className="max-w-md mx-auto">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
+                    <Search className="w-5 h-5" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search panel features or version codes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3.5 bg-white/5 backdrop-blur-md border rounded-full text-white placeholder-gray-500 text-sm focus:outline-none transition-all"
+                    style={{
+                      borderColor: searchQuery ? 'var(--theme-primary)' : 'rgba(255,255,255,0.1)',
+                      boxShadow: searchQuery ? '0 0 15px rgba(var(--theme-primary-rgb), 0.15)' : 'none'
+                    }}
+                  />
+                </div>
+                {searchQuery && (
+                  <p className="text-[11px] font-mono mt-2 theme-custom-text-primary">
+                    Filtering panel cards for "{searchQuery}"
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Main Grid Section */}
+          <section className="max-w-7xl mx-auto px-6 py-8 w-full flex-1">
+            {filteredPanels.length === 0 ? (
+              <div className="text-center p-12 bg-slate-900/40 border border-white/5 rounded-3xl">
+                <ShieldAlert className="w-12 h-12 text-yellow-500/70 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-white">No panels match your query</h3>
+                <p className="text-xs text-gray-500 mt-1">Try refining your search text or clear query to list all options.</p>
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="mt-4 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-300 hover:text-white"
+                >
+                  Reset Search Filter
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
+                {filteredPanels.map((panel) => (
+                  <PanelCard 
+                    key={panel.id} 
+                    panel={panel} 
+                    onDownload={handleDownloadTrigger} 
+                    whatsAppGroupUrl={contactWhatsAppGroup} 
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Secure footer */}
+          <footer className="bg-black/40 border-t border-white/10 mt-auto py-12 px-6 theme-custom-border relative">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-3">
+                {logoUrl ? (
+                  <img src={logoUrl} alt="Logo" className="w-6 h-6 rounded object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="w-6 h-6 bg-indigo-500 rounded flex items-center justify-center text-[10px] text-white font-bold">
+                    P
+                  </div>
+                )}
+                <span className="text-xs text-gray-400 font-bold font-mono">
+                  {siteName}
+                </span>
+              </div>
+
+              <p className="text-[11px] text-gray-500 text-center font-mono">
+                {footerText}
+              </p>
+
+              {/* Social media connections */}
+              <div className="flex items-center gap-4">
+                {socialLinks.github && (
+                  <a href={socialLinks.github} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="GitHub">
+                    <Github className="w-4 h-4" />
+                  </a>
+                )}
+                {socialLinks.discord && (
+                  <a href={socialLinks.discord} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="Discord">
+                    <MessageSquare className="w-4 h-4" />
+                  </a>
+                )}
+                {socialLinks.twitter && (
+                  <a href={socialLinks.twitter} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="Twitter">
+                    <Twitter className="w-4 h-4" />
+                  </a>
+                )}
+                {socialLinks.telegram && (
+                  <a href={socialLinks.telegram} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-all" title="Telegram">
+                    <Send className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </footer>
+
+          {/* Floating Chatbot-style Support Widget */}
+          {chatbotEnabled && (
+            <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+              <AnimatePresence>
+                {chatOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.85, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.85, y: 20 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className="w-80 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden text-left"
+                  >
+                    {/* Header */}
+                    <div className="p-4 bg-gradient-to-r from-indigo-600/80 to-purple-600/80 border-b border-white/10 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
+                            <MessageSquare className="w-4 h-4 text-indigo-300" />
+                          </div>
+                          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900 animate-ping" />
+                          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-white tracking-wide">Live Support Chat</h4>
+                          <p className="text-[9px] text-indigo-200 font-mono flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full inline-block animate-pulse" /> Support is Online
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setChatOpen(false)}
+                        className="p-1 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-all cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-4 space-y-4">
+                      <p className="text-[11px] text-gray-300 leading-relaxed bg-white/5 p-3 rounded-xl border border-white/5">
+                        {chatbotWelcomeMessage}
+                      </p>
+
+                      {/* Branded Channels inside Chatbot */}
+                      <div className="space-y-2.5">
+                        {telegramBotEnabled && (
+                          <a
+                            href={telegramLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-indigo-500/10 border border-white/5 hover:border-indigo-500/20 transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:bg-purple-500/20 transition-all border border-purple-500/10">
+                              <Send className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">Telegram Support Bot</span>
+                                <ExternalLink className="w-3 h-3 text-gray-500 group-hover:text-purple-400 transition-colors" />
+                              </div>
+                              <p className="text-[10px] text-gray-400 font-mono">@{(telegramUsername || 'panelsupport_bot').replace(/^@/, '')}</p>
+                            </div>
+                          </a>
+                        )}
+
+                        {whatsappBotEnabled && (
+                          <a
+                            href={whatsappLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/20 transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 transition-all border border-emerald-500/10">
+                              <MessageCircle className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">WhatsApp Chatbot</span>
+                                <ExternalLink className="w-3 h-3 text-gray-500 group-hover:text-emerald-400 transition-colors" />
+                              </div>
+                              <p className="text-[10px] text-gray-400 font-mono">Chat with support bot</p>
+                            </div>
+                          </a>
+                        )}
+
+                        {!telegramBotEnabled && !whatsappBotEnabled && (
+                          <div className="text-center py-4 text-xs text-gray-500 font-mono">
+                            No active support bot channels.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-4 py-2 bg-slate-950/40 border-t border-white/5 text-center">
+                      <span className="text-[9px] text-gray-500 font-mono">Typically responds in under 5 minutes</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Main Floating Trigger Button */}
+              <button
+                onClick={() => setChatOpen(!chatOpen)}
+                className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer relative group border border-white/10 theme-custom-btn-primary"
+                aria-label="Toggle support chat"
+              >
+                {chatOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <div className="relative">
+                    <MessageSquare className="w-6 h-6" />
+                    {/* Pulsing indicator when closed */}
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-400 rounded-full border border-indigo-600 animate-ping" />
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-400 rounded-full border border-indigo-600" />
+                  </div>
+                )}
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
