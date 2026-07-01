@@ -14,6 +14,48 @@ export function PanelCard({ panel, onDownload, whatsAppGroupUrl }: PanelCardProp
   const [copied, setCopied] = useState(false);
   const [showError, setShowError] = useState(false);
 
+  // Key generation states
+  const [keyGenerating, setKeyGenerating] = useState(false);
+  const [generatedKey, setGeneratedKey] = useState<string | null>(null);
+  const [keyError, setKeyError] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState(false);
+  const [keyExpiresAt, setKeyExpiresAt] = useState<string | null>(null);
+
+  const handleGenerateKey = async () => {
+    setKeyGenerating(true);
+    setKeyError(null);
+    try {
+      const res = await fetch('/api/keys/claim', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate key.');
+      }
+      if (data.success && data.key) {
+        setGeneratedKey(data.key.keyString);
+        if (data.key.expiresAt) {
+          setKeyExpiresAt(data.key.expiresAt);
+        }
+      } else {
+        throw new Error('Key generation returned invalid format.');
+      }
+    } catch (err: any) {
+      setKeyError(err.message || 'Failed to generate key.');
+    } finally {
+      setKeyGenerating(false);
+    }
+  };
+
+  const handleCopyKey = async () => {
+    if (!generatedKey) return;
+    try {
+      await navigator.clipboard.writeText(generatedKey);
+      setCopiedKey(true);
+      setTimeout(() => setCopiedKey(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy key:', err);
+    }
+  };
+
   const getIcon = () => {
     switch (panel.imageUrl) {
       case 'Monitor':
@@ -186,6 +228,66 @@ export function PanelCard({ panel, onDownload, whatsAppGroupUrl }: PanelCardProp
             </>
           )}
         </button>
+
+        {panel.id === 'free' && (
+          <div className="flex flex-col gap-2.5 p-3 rounded-xl bg-white/5 border border-white/10 theme-custom-border">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono text-gray-400 uppercase tracking-wider">Access Key Required</span>
+              {generatedKey && (
+                <span className="text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Active</span>
+              )}
+            </div>
+
+            {generatedKey ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2.5 bg-black/40 rounded-lg border border-white/5 font-mono text-xs text-white">
+                  <span className="font-bold select-all tracking-wider text-emerald-400">{generatedKey}</span>
+                  <button
+                    onClick={handleCopyKey}
+                    className="p-1.5 hover:bg-white/5 rounded text-gray-400 hover:text-white transition-colors"
+                    title="Copy Key"
+                  >
+                    {copiedKey ? (
+                      <Check className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {keyExpiresAt && (
+                  <p className="text-[10px] text-gray-500 font-mono text-center">
+                    Expires in 24 hours: {new Date(keyExpiresAt).toLocaleTimeString()}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={handleGenerateKey}
+                disabled={keyGenerating}
+                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow shadow-indigo-600/10 active:scale-95 disabled:opacity-50"
+              >
+                {keyGenerating ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Generating Key...</span>
+                  </>
+                ) : (
+                  <>
+                    <Gift className="w-3.5 h-3.5 animate-pulse" />
+                    <span>Generate Free Key Now</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            {keyError && (
+              <div className="flex items-center gap-1.5 text-[10px] text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded-lg leading-tight">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{keyError}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {(panel.id === 'pc' || panel.id === 'mobile') && whatsAppGroupUrl && (
           <a

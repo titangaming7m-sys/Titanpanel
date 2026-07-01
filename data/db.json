@@ -1,8 +1,8 @@
 {
   "settings": {
     "websiteName": "TITAN PANEL",
-    "logoUrl": "",
-    "bannerUrl": "",
+    "logoUrl": "https://i.postimg.cc/MTD8xvXf/file-00000000ee0871f8bb7d0a28cb43c02a-fotor-2026070165731.png",
+    "bannerUrl": "https://i.postimg.cc/MTD8xvXf/file-00000000ee0871f8bb7d0a28cb43c02a-fotor-2026070165731.png",
     "footerText": "© 2026 Panel Download Center. All Rights Reserved.",
     "socialLinks": {
       "telegram": "https://t.me",
@@ -17,73 +17,73 @@
     "whatsappNumber": "1234567890",
     "telegramUsername": "panelsupport_bot",
     "chatbotEnabled": true,
-    "chatbotWelcomeMessage": "Hi! Have any questions or need custom setup support? Reach out directly using our official channels below:",
+    "chatbotWelcomeMessage": "WhatsApp Chatbot",
     "whatsappBotEnabled": true,
-    "telegramBotEnabled": true,
-    "totalVisitors": 1024,
-    "activeTheme": "sunset-crimson",
-    "activeEffect": "none",
-    "customPrimary": "#dc2626",
-    "customSecondary": "#ea580c",
-    "customAccent": "#f59e0b",
-    "customBg": "#0c0404",
-    "customCardBg": "#1c0c0c",
-    "effectIntensity": 50,
-    "loadingLogoUrl": ""
+    "telegramBotEnabled": false,
+    "totalVisitors": 1030,
+    "activeTheme": "gilded-luxury",
+    "activeEffect": "honeycomb",
+    "customPrimary": "#fbbf24",
+    "customSecondary": "#fef08a",
+    "customAccent": "#d97706",
+    "customBg": "#050505",
+    "customCardBg": "#141412",
+    "effectIntensity": 100,
+    "loadingLogoUrl": "https://i.postimg.cc/MTD8xvXf/file-00000000ee0871f8bb7d0a28cb43c02a-fotor-2026070165731.png"
   },
   "panels": {
     "pc": {
-      "downloadCount": 1450,
-      "title": "PC Panel",
-      "id": "pc",
+      "imageUrl": "Monitor",
       "fileSize": "15.4 MB",
-      "enabled": true,
+      "title": "PC Panel",
       "version": "v2.5.1",
-      "lastUpdated": "June 25, 2026",
-      "downloadUrl": "/uploads/pc_panel_default.zip",
+      "enabled": true,
+      "downloadCount": 1451,
+      "id": "pc",
       "features": [
         "Instant Injector",
         "Custom Floating Menu",
         "System Opt Keybinds",
         "FPS Overlay Mode"
       ],
-      "imageUrl": "Monitor",
+      "downloadUrl": "/uploads/pc_panel_default.zip",
+      "lastUpdated": "June 25, 2026",
       "description": "Ultimate overlay and settings optimizer for desktop PCs. Experience buttery smooth performance and extensive customizations."
     },
     "mobile": {
-      "enabled": true,
-      "version": "v1.8.0",
-      "fileSize": "8.2 MB",
-      "id": "mobile",
-      "downloadCount": 3120,
-      "title": "Mobile Panel",
-      "downloadUrl": "/uploads/mobile_panel_default.apk",
-      "lastUpdated": "June 28, 2026",
       "description": "Premium floating mod menu APK for android devices. Optimized for high refresh rate mobile screens.",
-      "imageUrl": "Smartphone",
       "features": [
         "Anti-Ban Protection",
         "Floating Control Bar",
         "Zero Root Needed",
         "Battery Saver Mode"
-      ]
+      ],
+      "lastUpdated": "June 28, 2026",
+      "downloadUrl": "/uploads/mobile_panel_default.apk",
+      "id": "mobile",
+      "downloadCount": 3120,
+      "enabled": true,
+      "version": "v1.8.0",
+      "title": "Mobile Panel",
+      "fileSize": "8.2 MB",
+      "imageUrl": "Smartphone"
     },
     "free": {
-      "downloadCount": 5690,
       "title": "Free Panel",
-      "id": "free",
       "fileSize": "5.1 MB",
+      "imageUrl": "Gift",
       "version": "v1.0.0",
+      "id": "free",
+      "downloadCount": 5690,
       "enabled": true,
-      "lastUpdated": "June 10, 2026",
-      "downloadUrl": "/uploads/free_panel_default.zip",
+      "description": "Get started immediately with our free layout customizer. Secure and completely free forever.",
       "features": [
         "Clean Interface",
         "Basic Controls",
         "Community Support"
       ],
-      "imageUrl": "Gift",
-      "description": "Get started immediately with our free layout customizer. Secure and completely free forever."
+      "lastUpdated": "June 10, 2026",
+      "downloadUrl": "/uploads/free_panel_default.zip"
     }
   },
   "admin": {
@@ -92,25 +92,223 @@
   },
   "downloads": [
     {
-      "timestamp": "2026-07-01T00:27:35.557Z",
+      "id": "mbsyh4p",
+      "timestamp": "2026-07-01T11:43:06.222Z",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36",
+      "panelId": "pc",
+      "ip": "2401:4900:cab0:c9bc:c422:f29c:4e3a:6912, 169.254.169.126"
+    },
+    {
       "id": "1",
+      "timestamp": "2026-07-01T00:27:35.557Z",
       "ip": "127.0.0.1",
       "panelId": "mobile",
       "userAgent": "Mozilla"
     },
     {
       "timestamp": "2026-07-01T00:22:25.558Z",
-      "id": "2",
       "userAgent": "Chrome",
+      "panelId": "pc",
       "ip": "192.168.1.10",
-      "panelId": "pc"
+      "id": "2"
     },
     {
-      "userAgent": "Safari",
-      "panelId": "free",
+      "timestamp": "2026-07-01T00:13:25.558Z",
       "ip": "8.8.8.8",
-      "id": "3",
-      "timestamp": "2026-07-01T00:13:25.558Z"
+      "panelId": "free",
+      "userAgent": "Safari",
+      "id": "3"
+    }
+  ],
+  "keys": [
+    {
+      "status": "claimed",
+      "claimedAt": "2026-07-01T11:51:37.984Z",
+      "createdAt": "2026-07-01T11:51:22.376Z",
+      "expiresAt": "2026-07-02T11:51:37.984Z",
+      "id": "key_1",
+      "claimedByIp": "2401:4900:cab0:c9bc:c422:f29c:4e3a:6912, 169.254.169.126",
+      "keyString": "FREE-1000-6G1A"
+    },
+    {
+      "claimedByIp": null,
+      "id": "key_2",
+      "keyString": "FREE-1001-1DOJ",
+      "createdAt": "2026-07-01T11:51:22.376Z",
+      "expiresAt": null,
+      "claimedAt": null,
+      "status": "active"
+    },
+    {
+      "status": "active",
+      "claimedAt": null,
+      "createdAt": "2026-07-01T11:51:22.376Z",
+      "expiresAt": null,
+      "keyString": "FREE-1002-URLV",
+      "claimedByIp": null,
+      "id": "key_3"
+    },
+    {
+      "status": "active",
+      "claimedAt": null,
+      "createdAt": "2026-07-01T11:51:22.376Z",
+      "expiresAt": null,
+      "claimedByIp": null,
+      "id": "key_4",
+      "keyString": "FREE-1003-C40A"
+    },
+    {
+      "expiresAt": null,
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "keyString": "FREE-1004-ALT8",
+      "claimedByIp": null,
+      "id": "key_5",
+      "status": "active",
+      "claimedAt": null
+    },
+    {
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "expiresAt": null,
+      "claimedByIp": null,
+      "keyString": "FREE-1005-DD1V",
+      "id": "key_6",
+      "status": "active",
+      "claimedAt": null
+    },
+    {
+      "claimedAt": null,
+      "status": "active",
+      "keyString": "FREE-1006-MGP6",
+      "id": "key_7",
+      "claimedByIp": null,
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "expiresAt": null
+    },
+    {
+      "claimedAt": null,
+      "status": "active",
+      "claimedByIp": null,
+      "keyString": "FREE-1007-VYCS",
+      "id": "key_8",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T11:51:22.377Z"
+    },
+    {
+      "claimedAt": null,
+      "status": "active",
+      "id": "key_9",
+      "claimedByIp": null,
+      "keyString": "FREE-1008-CFRG",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T11:51:22.377Z"
+    },
+    {
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "expiresAt": null,
+      "keyString": "FREE-1009-AKTB",
+      "claimedByIp": null,
+      "id": "key_10",
+      "status": "active",
+      "claimedAt": null
+    },
+    {
+      "id": "key_tr3texb",
+      "keyString": "TESTKEY123",
+      "createdAt": "2026-07-01T12:06:31.609Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_ym11l6j",
+      "keyString": "FREE-U4RN-1A4L",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_abo5i7g",
+      "keyString": "FREE-0HBH-BVRJ",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_gv5z4v3",
+      "keyString": "FREE-E2M8-1ZNX",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_v9v9juj",
+      "keyString": "FREE-PSSE-9Z9X",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_1fcvhjy",
+      "keyString": "FREE-562A-8D99",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_nqiy1hs",
+      "keyString": "FREE-0A2I-FL8U",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_1e4trp1",
+      "keyString": "FREE-4H5V-H0SY",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_n00to9v",
+      "keyString": "FREE-9P4Q-97B5",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_g3zcztr",
+      "keyString": "FREE-GPY3-2R2U",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "id": "key_15bpaij",
+      "keyString": "FREE-G5SU-2XPK",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "status": "active"
     }
   ]
 }

@@ -57,6 +57,16 @@ export interface DownloadLog {
   userAgent: string;
 }
 
+export interface AccessKey {
+  id: string;
+  keyString: string;
+  createdAt: string;
+  claimedByIp: string | null;
+  claimedAt: string | null;
+  expiresAt: string | null;
+  status: 'active' | 'claimed' | 'expired';
+}
+
 export interface DashboardStats {
   totalDownloads: number;
   totalFiles: number;

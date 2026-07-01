@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
-import { PanelConfig, WebsiteSettings, DownloadLog, DashboardStats } from '../src/types';
+import { initializeFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { PanelConfig, WebsiteSettings, DownloadLog, DashboardStats, AccessKey } from '../src/types';
 
 // Let's establish paths
 const LOCAL_DB_PATH = path.join(process.cwd(), 'data', 'db.json');
@@ -113,11 +113,25 @@ const defaultDownloads: DownloadLog[] = [
   { id: '3', panelId: 'free', timestamp: new Date(Date.now() - 900000).toISOString(), ip: '8.8.8.8', userAgent: 'Safari' },
 ];
 
+const defaultKeys: AccessKey[] = Array.from({ length: 10 }, (_, i) => {
+  const keyStr = `FREE-${1000 + i}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  return {
+    id: `key_${i + 1}`,
+    keyString: keyStr,
+    createdAt: new Date().toISOString(),
+    claimedByIp: null,
+    claimedAt: null,
+    expiresAt: null,
+    status: 'active' as const,
+  };
+});
+
 interface FullDBState {
   settings: WebsiteSettings;
   panels: Record<string, PanelConfig>;
   admin: typeof defaultAdmin;
   downloads: DownloadLog[];
+  keys: AccessKey[];
 }
 
 let dbState: FullDBState = {
@@ -125,6 +139,7 @@ let dbState: FullDBState = {
   panels: defaultPanels,
   admin: defaultAdmin,
   downloads: defaultDownloads,
+  keys: defaultKeys,
 };
 
 // Try initializing Firebase
@@ -137,7 +152,9 @@ try {
     const firebaseConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     if (firebaseConfig && firebaseConfig.projectId) {
       const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-      firestore = getFirestore(app, firebaseConfig.firestoreDatabaseId || '(default)');
+      firestore = initializeFirestore(app, {
+        ignoreUndefinedProperties: true,
+      }, firebaseConfig.firestoreDatabaseId || '(default)');
       useFirebase = true;
       console.log('Firebase Web SDK initialized successfully with DatabaseId:', firebaseConfig.firestoreDatabaseId);
     }
@@ -159,6 +176,7 @@ export async function loadDB(): Promise<FullDBState> {
         if (data.panels) dbState.panels = { ...defaultPanels, ...data.panels };
         if (data.admin) dbState.admin = { ...defaultAdmin, ...data.admin };
         if (data.downloads) dbState.downloads = data.downloads;
+        if (data.keys) dbState.keys = data.keys;
         return dbState;
       } else {
         // Document doesn't exist, let's write default data to Firestore
@@ -184,6 +202,7 @@ function loadLocalDB(): FullDBState {
       if (loaded.panels) dbState.panels = { ...defaultPanels, ...loaded.panels };
       if (loaded.admin) dbState.admin = { ...defaultAdmin, ...loaded.admin };
       if (loaded.downloads) dbState.downloads = loaded.downloads;
+      if (loaded.keys) dbState.keys = loaded.keys;
     } else {
       // Write default
       saveLocalDB(dbState);
@@ -320,6 +339,7 @@ export async function restoreDatabase(restoredState: FullDBState): Promise<boole
         panels: { ...defaultPanels, ...restoredState.panels },
         admin: { ...defaultAdmin, ...restoredState.admin },
         downloads: restoredState.downloads || [],
+        keys: restoredState.keys || defaultKeys,
       };
       await saveDB();
       return true;
@@ -330,6 +350,141 @@ export async function restoreDatabase(restoredState: FullDBState): Promise<boole
     return false;
   }
 }
+
+// ACCESS KEYS OPERATIONS
+export async function getKeys(): Promise<AccessKey[]> {
+  const db = await loadDB();
+  let changed = false;
+  const now = new Date();
+  
+  if (!db.keys) {
+    db.keys = [...defaultKeys];
+    changed = true;
+  }
+
+  db.keys.forEach((k) => {
+    if (k.status === 'claimed' && k.expiresAt && new Date(k.expiresAt) < now) {
+      k.status = 'expired';
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    await saveDB();
+  }
+  return db.keys;
+}
+
+export async function addKey(keyString: string): Promise<AccessKey> {
+  const db = await loadDB();
+  if (!db.keys) db.keys = [];
+  const newKey: AccessKey = {
+    id: 'key_' + Math.random().toString(36).substring(2, 9),
+    keyString: keyString.toUpperCase().trim(),
+    createdAt: new Date().toISOString(),
+    claimedByIp: null,
+    claimedAt: null,
+    expiresAt: null,
+    status: 'active',
+  };
+  db.keys.push(newKey);
+  await saveDB();
+  return newKey;
+}
+
+export async function generateTenKeys(): Promise<AccessKey[]> {
+  const db = await loadDB();
+  if (!db.keys) db.keys = [];
+  const newKeys: AccessKey[] = [];
+  for (let i = 0; i < 10; i++) {
+    const keyStr = `FREE-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const newKey: AccessKey = {
+      id: 'key_' + Math.random().toString(36).substring(2, 9),
+      keyString: keyStr,
+      createdAt: new Date().toISOString(),
+      claimedByIp: null,
+      claimedAt: null,
+      expiresAt: null,
+      status: 'active',
+    };
+    db.keys.push(newKey);
+    newKeys.push(newKey);
+  }
+  await saveDB();
+  return newKeys;
+}
+
+export async function deleteKey(id: string): Promise<boolean> {
+  const db = await loadDB();
+  if (!db.keys) db.keys = [];
+  const initialLength = db.keys.length;
+  db.keys = db.keys.filter(k => k.id !== id);
+  if (db.keys.length !== initialLength) {
+    await saveDB();
+    return true;
+  }
+  return false;
+}
+
+export async function claimFreeKey(ip: string): Promise<AccessKey> {
+  const db = await loadDB();
+  if (!db.keys) {
+    db.keys = [...defaultKeys];
+    await saveDB();
+  }
+  
+  // First check if this IP has already claimed an active key
+  const existing = db.keys.find(k => k.claimedByIp === ip && k.status === 'claimed');
+  if (existing) {
+    // Check if it's expired
+    if (existing.expiresAt && new Date(existing.expiresAt) < new Date()) {
+      existing.status = 'expired';
+      await saveDB();
+    } else {
+      return existing; // return the same key they already claimed
+    }
+  }
+  
+  // Find an unclaimed active key
+  const available = db.keys.find(k => k.status === 'active' && !k.claimedByIp);
+  if (!available) {
+    throw new Error('No free keys are currently available. Please check back later or contact admin.');
+  }
+  
+  const claimedAt = new Date();
+  const expiresAt = new Date(claimedAt.getTime() + 24 * 60 * 60 * 1000); // Expires in 24 hours
+  
+  available.status = 'claimed';
+  available.claimedByIp = ip;
+  available.claimedAt = claimedAt.toISOString();
+  available.expiresAt = expiresAt.toISOString();
+  
+  await saveDB();
+  return available;
+}
+
+export async function updateKey(id: string, updates: Partial<Omit<AccessKey, 'id' | 'createdAt'>>): Promise<AccessKey | null> {
+  const db = await loadDB();
+  if (!db.keys) db.keys = [];
+  const key = db.keys.find(k => k.id === id);
+  if (!key) return null;
+  
+  if (updates.keyString !== undefined) key.keyString = updates.keyString.toUpperCase().trim();
+  if (updates.status !== undefined) key.status = updates.status;
+  if (updates.claimedByIp !== undefined) {
+    key.claimedByIp = updates.claimedByIp ? updates.claimedByIp.trim() : null;
+  }
+  if (updates.claimedAt !== undefined) {
+    key.claimedAt = updates.claimedAt ? updates.claimedAt : null;
+  }
+  if (updates.expiresAt !== undefined) {
+    key.expiresAt = updates.expiresAt ? updates.expiresAt : null;
+  }
+  
+  await saveDB();
+  return key;
+}
+
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   const db = await loadDB();

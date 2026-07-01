@@ -18,7 +18,13 @@ import {
   recordDownload,
   getDashboardStats,
   restoreDatabase,
-  loadDB
+  loadDB,
+  getKeys,
+  addKey,
+  generateTenKeys,
+  deleteKey,
+  claimFreeKey,
+  updateKey
 } from './server/db.js';
 
 // Setup Express
@@ -73,14 +79,72 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(uploadsDir));
 
-// Keep track of active admin sessions (Simple in-memory session token store)
+// Keep track of active admin sessions (Simple file-persistent session token store)
 // Token to session info mapping
 interface AdminSession {
   token: string;
   username: string;
   createdAt: number;
 }
-const ACTIVE_SESSIONS = new Map<string, AdminSession>();
+
+const SESSIONS_PATH = path.join(process.cwd(), 'server-sessions.json');
+
+class PersistentSessionStore {
+  private cache: Map<string, AdminSession> = new Map();
+
+  constructor() {
+    this.load();
+  }
+
+  private load() {
+    try {
+      if (fs.existsSync(SESSIONS_PATH)) {
+        const data = JSON.parse(fs.readFileSync(SESSIONS_PATH, 'utf8'));
+        if (Array.isArray(data)) {
+          for (const s of data) {
+            if (s && s.token) {
+              this.cache.set(s.token, s);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error loading persistent sessions:', err);
+    }
+  }
+
+  private save() {
+    try {
+      const list = Array.from(this.cache.values());
+      fs.writeFileSync(SESSIONS_PATH, JSON.stringify(list, null, 2), 'utf8');
+    } catch (err) {
+      console.error('Error saving persistent sessions:', err);
+    }
+  }
+
+  get(token: string): AdminSession | undefined {
+    return this.cache.get(token);
+  }
+
+  set(token: string, session: AdminSession): this {
+    this.cache.set(token, session);
+    this.save();
+    return this;
+  }
+
+  delete(token: string): boolean {
+    const res = this.cache.delete(token);
+    this.save();
+    return res;
+  }
+
+  clear(): void {
+    this.cache.clear();
+    this.save();
+  }
+}
+
+const ACTIVE_SESSIONS = new PersistentSessionStore();
 
 // Helper function to generate clean session token
 function generateSessionToken(): string {
@@ -109,6 +173,7 @@ function requireAdmin(req: express.Request, res: express.Response, next: express
 
   // Refresh session activity time
   session.createdAt = Date.now();
+  ACTIVE_SESSIONS.set(token, session);
   next();
 }
 
@@ -367,9 +432,6 @@ app.post('/api/admin/panels-create', requireAdmin, async (req, res) => {
 app.delete('/api/admin/panels/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    if (id === 'pc' || id === 'mobile' || id === 'free') {
-      return res.status(400).json({ error: 'Core system panels cannot be deleted.' });
-    }
 
     const deleted = await deletePanel(id);
     if (!deleted) {
@@ -481,6 +543,84 @@ app.post('/api/admin/restore', requireAdmin, async (req, res) => {
       res.json({ success: true, message: 'Database state restored successfully.' });
     } else {
       res.status(400).json({ error: 'Failed to restore database. Ensure database structure is correct.' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 14. Access Keys APIs
+app.post('/api/keys/claim', async (req, res) => {
+  try {
+    const ip = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown';
+    const key = await claimFreeKey(ip);
+    res.json({ success: true, key });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/keys', requireAdmin, async (req, res) => {
+  try {
+    const keysList = await getKeys();
+    res.json({ success: true, keys: keysList });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/keys/add', requireAdmin, async (req, res) => {
+  try {
+    const { keyString } = req.body;
+    if (!keyString || keyString.trim().length === 0) {
+      return res.status(400).json({ error: 'Key string is required.' });
+    }
+    const newKey = await addKey(keyString);
+    res.json({ success: true, key: newKey });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/keys/generate', requireAdmin, async (req, res) => {
+  try {
+    const newKeys = await generateTenKeys();
+    res.json({ success: true, keys: newKeys });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/admin/keys/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await deleteKey(id);
+    if (deleted) {
+      res.json({ success: true, message: 'Key deleted successfully.' });
+    } else {
+      res.status(404).json({ error: 'Key not found.' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/keys/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { keyString, status, claimedByIp, expiresAt } = req.body;
+    
+    const updated = await updateKey(id, {
+      keyString,
+      status,
+      claimedByIp,
+      expiresAt
+    });
+
+    if (updated) {
+      res.json({ success: true, key: updated, message: 'Key updated successfully.' });
+    } else {
+      res.status(404).json({ error: 'Key not found.' });
     }
   } catch (err: any) {
     res.status(500).json({ error: err.message });

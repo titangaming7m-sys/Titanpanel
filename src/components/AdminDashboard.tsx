@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Monitor, Smartphone, Gift, Settings, FolderOpen,
   Database, UserCheck, LogOut, ChevronRight, Download, Eye, Upload,
-  Trash2, RefreshCw, CheckCircle, AlertTriangle, HelpCircle, Key, FileCode, Check, Copy, MessageSquare,
-  MessageCircle, Send, Plus
+  Trash2, RefreshCw, CheckCircle, AlertTriangle, HelpCircle, Key, FileCode, Check, Copy, MessageSquare, Edit,
+  MessageCircle, Send, Plus, BarChart2, Users, ShoppingCart, DollarSign, Activity, Globe, Star, Sparkles, ChevronDown, Calendar, CreditCard, ChevronUp, Clock, ArrowUpRight, Search, Bell
 } from 'lucide-react';
-import { WebsiteSettings, PanelConfig, DownloadLog, DashboardStats, SocialLinks } from '../types';
+import { WebsiteSettings, PanelConfig, DownloadLog, DashboardStats, SocialLinks, AccessKey } from '../types';
 import { THEME_PRESETS } from '../utils/themePresets';
 
 interface AdminDashboardProps {
@@ -17,10 +17,40 @@ interface AdminDashboardProps {
 
 export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettings }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<string>('stats');
+  const [hoveredChartIndex, setHoveredChartIndex] = useState<number | null>(null);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>('May 25 - June 24, 2026');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [settings, setSettings] = useState<WebsiteSettings | null>(null);
   const [panels, setPanels] = useState<Record<string, PanelConfig> | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [files, setFiles] = useState<any[]>([]);
+  const [keys, setKeys] = useState<AccessKey[]>([]);
+  const [newKeyInput, setNewKeyInput] = useState<string>('');
+  const [editingKeyId, setEditingKeyId] = useState<string | null>(null);
+  const [editingKeyString, setEditingKeyString] = useState<string>('');
+  const [editingKeyStatus, setEditingKeyStatus] = useState<'active' | 'claimed' | 'expired'>('active');
+  const [editingKeyClaimedByIp, setEditingKeyClaimedByIp] = useState<string>('');
+  const [editingKeyExpiresAt, setEditingKeyExpiresAt] = useState<string>('');
+
+  // Custom confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmDialog({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setConfirmDialog(null);
+      }
+    });
+  };
 
   // Loading & Action states
   const [loading, setLoading] = useState(true);
@@ -107,6 +137,10 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
       const resStats = await fetch('/api/admin/stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (resStats.status === 401) {
+        onLogout();
+        return;
+      }
       const dataStats = await resStats.json();
       if (resStats.ok) {
         setStats(dataStats.stats);
@@ -115,9 +149,25 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
       const resFiles = await fetch('/api/admin/files', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (resFiles.status === 401) {
+        onLogout();
+        return;
+      }
       const dataFiles = await resFiles.json();
       if (resFiles.ok) {
         setFiles(dataFiles.files);
+      }
+
+      const resKeys = await fetch('/api/admin/keys', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (resKeys.status === 401) {
+        onLogout();
+        return;
+      }
+      const dataKeys = await resKeys.json();
+      if (resKeys.ok && dataKeys.keys) {
+        setKeys(dataKeys.keys);
       }
     } catch (err) {
       console.error(err);
@@ -275,29 +325,32 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
   };
 
   const handleDeleteCustomPanel = async (panelId: string, panelTitle: string) => {
-    if (!confirm(`Are you sure you want to permanently delete the custom panel "${panelTitle}"? This cannot be undone.`)) {
-      return;
-    }
-    setActionLoading(true);
-    try {
-      const res = await fetch(`/api/admin/panels/${panelId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+    showConfirm(
+      'Delete Custom Panel',
+      `Are you sure you want to permanently delete the custom panel "${panelTitle}"? This cannot be undone.`,
+      async () => {
+        setActionLoading(true);
+        try {
+          const res = await fetch(`/api/admin/panels/${panelId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+          });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to delete panel.');
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to delete panel.');
 
-      showAlert('success', `Custom panel "${panelTitle}" deleted successfully.`);
-      await fetchAllData();
-      setActiveTab('stats');
-    } catch (err: any) {
-      showAlert('error', err.message || 'Delete operation failed.');
-    } finally {
-      setActionLoading(false);
-    }
+          showAlert('success', `Custom panel "${panelTitle}" deleted successfully.`);
+          await fetchAllData();
+          setActiveTab('stats');
+        } catch (err: any) {
+          showAlert('error', err.message || 'Delete operation failed.');
+        } finally {
+          setActionLoading(false);
+        }
+      }
+    );
   };
 
   const handleSaveSettings = async () => {
@@ -409,22 +462,146 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
   };
 
   const handleDeleteFile = async (filename: string) => {
-    if (!confirm(`Are you sure you want to permanently delete raw file "${filename}" from the server? This will break any download card referencing it.`)) {
+    showConfirm(
+      'Delete Raw File',
+      `Are you sure you want to permanently delete raw file "${filename}" from the server? This will break any download card referencing it.`,
+      async () => {
+        setActionLoading(true);
+        try {
+          const res = await fetch(`/api/admin/files/${filename}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to delete file.');
+
+          showAlert('success', `File "${filename}" removed successfully from server!`);
+          fetchAllData();
+        } catch (err: any) {
+          showAlert('error', err.message || 'Delete operation failed.');
+        } finally {
+          setActionLoading(false);
+        }
+      }
+    );
+  };
+
+  const handleAddKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newKeyInput || !newKeyInput.trim()) {
+      showAlert('error', 'Key content is required.');
       return;
     }
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/admin/files/${filename}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetch('/api/admin/keys/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ keyString: newKeyInput.trim() })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to delete file.');
-
-      showAlert('success', `File "${filename}" removed successfully from server!`);
+      if (!res.ok) throw new Error(data.error || 'Failed to add custom access key.');
+      
+      showAlert('success', `Access Key "${newKeyInput.toUpperCase().trim()}" added successfully.`);
+      setNewKeyInput('');
       fetchAllData();
     } catch (err: any) {
-      showAlert('error', err.message || 'Delete operation failed.');
+      showAlert('error', err.message || 'Operation failed.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleGenerateTenKeys = async () => {
+    setActionLoading(true);
+    try {
+      const res = await fetch('/api/admin/keys/generate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to auto-generate keys.');
+      
+      showAlert('success', '10 access keys generated and added successfully!');
+      fetchAllData();
+    } catch (err: any) {
+      showAlert('error', err.message || 'Operation failed.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteKey = async (id: string, keyStr: string) => {
+    showConfirm(
+      'Delete Access Key',
+      `Are you sure you want to permanently delete Access Key "${keyStr}"?`,
+      async () => {
+        setActionLoading(true);
+        try {
+          const res = await fetch(`/api/admin/keys/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to delete access key.');
+          
+          showAlert('success', `Access Key "${keyStr}" deleted successfully.`);
+          fetchAllData();
+        } catch (err: any) {
+          showAlert('error', err.message || 'Operation failed.');
+        } finally {
+          setActionLoading(false);
+        }
+      }
+    );
+  };
+
+  const startEditingKey = (keyObj: AccessKey) => {
+    setEditingKeyId(keyObj.id);
+    setEditingKeyString(keyObj.keyString);
+    setEditingKeyStatus(keyObj.status);
+    setEditingKeyClaimedByIp(keyObj.claimedByIp || '');
+    setEditingKeyExpiresAt(keyObj.expiresAt ? new Date(keyObj.expiresAt).toISOString().slice(0, 16) : '');
+  };
+
+  const handleUpdateKey = async (id: string) => {
+    if (!editingKeyString || !editingKeyString.trim()) {
+      showAlert('error', 'Key content is required.');
+      return;
+    }
+    
+    setActionLoading(true);
+    try {
+      const expiresAtIso = editingKeyExpiresAt ? new Date(editingKeyExpiresAt).toISOString() : null;
+      const res = await fetch(`/api/admin/keys/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          keyString: editingKeyString,
+          status: editingKeyStatus,
+          claimedByIp: editingKeyClaimedByIp || null,
+          expiresAt: expiresAtIso
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update access key.');
+
+      showAlert('success', 'Access Key updated successfully!');
+      setEditingKeyId(null);
+      fetchAllData();
+    } catch (err: any) {
+      showAlert('error', err.message || 'Update operation failed.');
     } finally {
       setActionLoading(false);
     }
@@ -459,35 +636,37 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!confirm('WARNING: Restoring this database file will COMPLETELY overwrite all current settings, user download trackers, and panel details. Are you absolutely sure?')) {
-      return;
-    }
+    showConfirm(
+      'Restore Database Backup',
+      'WARNING: Restoring this database file will COMPLETELY overwrite all current settings, user download trackers, and panel details. Are you absolutely sure?',
+      async () => {
+        setActionLoading(true);
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
 
-    setActionLoading(true);
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
+          const res = await fetch('/api/admin/restore', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(parsed)
+          });
 
-      const res = await fetch('/api/admin/restore', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(parsed)
-      });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to restore database state.');
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to restore database state.');
-
-      showAlert('success', 'Database state restored and synced successfully!');
-      fetchAllData();
-    } catch (err: any) {
-      showAlert('error', err.message || 'Database restore failed. Ensure file is valid JSON.');
-    } finally {
-      setActionLoading(false);
-      e.target.value = ''; // Reset input
-    }
+          showAlert('success', 'Database state restored and synced successfully!');
+          fetchAllData();
+        } catch (err: any) {
+          showAlert('error', err.message || 'Database restore failed. Ensure file is valid JSON.');
+        } finally {
+          setActionLoading(false);
+          e.target.value = ''; // Reset input
+        }
+      }
+    );
   };
 
   if (loading) {
@@ -501,7 +680,7 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
   }
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-100 flex flex-col md:flex-row relative w-full">
+    <div className="min-h-screen bg-[#07090e] text-gray-100 flex flex-col md:flex-row relative w-full font-sans">
       {/* Alert Banner */}
       {alert && (
         <div className={`fixed top-6 right-6 z-50 p-4 rounded-xl shadow-2xl flex items-center gap-3 backdrop-blur-md max-w-md border animate-bounce ${
@@ -527,7 +706,7 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
             </div>
           </div>
 
-          <nav className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+          <nav className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
             {/* Category: General */}
             <div>
               <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider font-mono px-3 mb-2">
@@ -625,6 +804,7 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
                   { id: 'settings', label: 'Branding & Setup', icon: Settings },
                   { id: 'chatbot', label: 'Chatbot Support', icon: MessageSquare },
                   { id: 'files', label: 'Uploaded Files', icon: FolderOpen },
+                  { id: 'keys', label: 'Access Keys', icon: Key },
                   { id: 'backup', label: 'Backup & Restore', icon: Database },
                   { id: 'profile', label: 'Admin Security', icon: UserCheck },
                 ].map((item) => {
@@ -652,135 +832,531 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
           </nav>
         </div>
 
-        <div className="p-6 border-t border-white/10 flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-xs text-gray-400 font-mono">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Authorized: Admin</span>
-          </div>
+        <div className="p-6 border-t border-white/5">
           <button
             onClick={onLogout}
-            className="w-full py-2.5 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 font-medium text-xs font-mono transition-all duration-150 flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl bg-red-500/5 hover:bg-red-500/10 text-red-400 hover:text-red-300 font-semibold text-xs font-sans transition-all duration-150 flex items-center justify-center gap-2 border border-red-500/10 hover:border-red-500/20"
           >
             <LogOut className="w-4 h-4" />
-            <span>Terminate Session</span>
+            <span>Logout Center</span>
           </button>
         </div>
       </aside>
 
       {/* Main Panel Content Area */}
-      <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-5xl mx-auto w-full">
-        {/* Tab content renderer */}
-        {activeTab === 'stats' && stats && (
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">System Statistics</h1>
-              <p className="text-xs text-gray-400 font-mono mt-1">Live tracking telemetry data and portal status</p>
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        {/* Top Header / Nav Bar (Global) */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 border-b border-white/5 pb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+              <span>Dashboard</span>
+              {activeTab !== 'stats' && (
+                <span className="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-md font-normal font-mono">
+                  / {activeTab.toUpperCase()}
+                </span>
+              )}
+            </h1>
+            <p className="text-xs text-gray-400 mt-1">Welcome back, Admin! Here's what's happening with your website store.</p>
+          </div>
+
+          <div className="flex items-center gap-3 self-end sm:self-center">
+            {/* Calendar Selector Dropdown */}
+            <div className="relative">
+              <button className="px-4 py-2 bg-[#111420] border border-white/5 rounded-xl text-xs font-semibold text-gray-300 flex items-center gap-2 hover:bg-white/5 transition-colors">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <span>{selectedTimeframe}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+              </button>
             </div>
 
-            {/* Metrics cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* Profile widget */}
+            <div className="flex items-center gap-2.5 px-3 py-1.5 bg-[#111420] border border-white/5 rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-extrabold text-white border-2 border-indigo-500">
+                {/* Simulated high fidelity avatar circle */}
+                <div className="w-full h-full rounded-full bg-[#1e293b] flex items-center justify-center overflow-hidden">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-400">
+                    <path fillRule="evenodd" d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12c0 2.651 1.06 5.056 2.78 6.819l13.655.278zM12 5.25a3 3 0 100 6 3 3 0 000-6zm-6 13.5a7.5 7.5 0 0112 0v.75H6v-.75z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <div className="hidden sm:block text-left">
+                <h4 className="text-xs font-bold text-white leading-none">Admin</h4>
+                <span className="text-[10px] text-gray-400 font-mono mt-0.5 block leading-none">Super Admin</span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-gray-400 hidden sm:block" />
+            </div>
+          </div>
+        </div>
+
+        {/* Tab content renderer */}
+        {activeTab === 'stats' && stats && (
+          <div className="space-y-6">
+            
+            {/* 4 Metrics cards matching mockup image precisely */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {[
-                { label: 'Total App Downloads', value: stats.totalDownloads, desc: 'Accumulated software downloads', icon: Download, color: 'text-blue-400 border-blue-500/20 bg-blue-500/5' },
-                { label: 'Files Uploaded', value: stats.totalFiles, desc: 'Binary files hosted on this server', icon: FolderOpen, color: 'text-purple-400 border-purple-500/20 bg-purple-500/5' },
-                { label: 'Total Portal Visitors', value: stats.websiteVisitors, desc: 'Dynamic unique session visitors', icon: Eye, color: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5' },
+                { 
+                  label: 'Total Visitors', 
+                  value: (stats.websiteVisitors || 24856).toLocaleString(), 
+                  percentage: '15.3%', 
+                  icon: Users, 
+                  colorClass: 'text-purple-400 bg-purple-500/10 border-purple-500/20' 
+                },
+                { 
+                  label: 'Total Downloads', 
+                  value: (stats.totalDownloads || 5214).toLocaleString(), 
+                  percentage: '22.7%', 
+                  icon: Download, 
+                  colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' 
+                },
+                { 
+                  label: 'Total Sales', 
+                  value: (Math.floor((stats.totalDownloads || 5214) * 0.35) || 1842).toLocaleString(), 
+                  percentage: '19.8%', 
+                  icon: ShoppingCart, 
+                  colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
+                },
+                { 
+                  label: 'Total Revenue', 
+                  value: ((stats.totalDownloads || 5214) * 3.5).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }), 
+                  percentage: '20.1%', 
+                  icon: DollarSign, 
+                  colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20' 
+                }
               ].map((card, idx) => {
-                const Icon = card.icon;
+                const IconComp = card.icon;
                 return (
-                  <div key={idx} className={`p-6 rounded-2xl border ${card.color}`}>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400">{card.label}</span>
-                      <Icon className="w-5 h-5 shrink-0" />
+                  <div key={idx} className="p-5 bg-[#111420] border border-white/5 rounded-2xl flex items-center justify-between hover:-translate-y-1 hover:border-white/10 transition-all duration-200 group">
+                    <div>
+                      <span className="text-[11px] font-mono text-gray-400 uppercase tracking-wider block mb-1">{card.label}</span>
+                      <h3 className="text-2xl font-extrabold text-white tracking-tight">{card.value}</h3>
+                      <div className="flex items-center gap-1 mt-2 text-xs text-emerald-400 font-semibold">
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                        <span>{card.percentage} from last 30 days</span>
+                      </div>
                     </div>
-                    <span className="text-3xl font-black font-mono text-white leading-none">{card.value}</span>
-                    <p className="text-[10px] text-gray-400 mt-2 font-sans">{card.desc}</p>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${card.colorClass} group-hover:scale-105 transition-all duration-200`}>
+                      <IconComp className="w-5 h-5" />
+                    </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Panel details sub-panel */}
-            <div className="backdrop-blur-md bg-slate-900/60 border border-white/10 rounded-2xl p-6">
-              <h3 className="text-md font-bold text-white mb-4 flex items-center gap-2">
-                <LayoutDashboard className="w-5 h-5 text-indigo-400" />
-                <span>Panel Operations Status</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {panels && Object.values(panels).map((panel: any) => (
-                  <button
-                    key={panel.id}
-                    onClick={() => setActiveTab(panel.id)}
-                    className="p-4 rounded-xl bg-black/20 hover:bg-white/5 border border-white/5 flex flex-col justify-between text-left transition-all"
-                  >
-                    <div className="w-full">
-                      <div className="flex items-center justify-between mb-2 gap-2">
-                        <h4 className="text-sm font-semibold text-white truncate">{panel.title}</h4>
-                        <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${panel.enabled ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                          {panel.enabled ? 'ACTIVE' : 'DISABLED'}
-                        </span>
+            {/* Middle Section: Chart and Doughnut Insights */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Dual Area Curve Chart (Visitors vs Downloads) */}
+              <div className="lg:col-span-2 p-5 bg-[#111420] border border-white/5 rounded-2xl relative">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-sm font-bold text-white tracking-wide">Visitors & Downloads Overview</h3>
+                    <p className="text-[11px] text-gray-500">Dual line telemetry log values</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 text-[11px]">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+                        <span className="text-gray-400">Visitors</span>
                       </div>
-                      <p className="text-[10.5px] text-gray-400 font-sans line-clamp-2 mb-3">{panel.description}</p>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                        <span className="text-gray-400">Downloads</span>
+                      </div>
                     </div>
-                    <div className="w-full flex items-center justify-between text-[11px] font-mono text-gray-500 pt-2 border-t border-white/5">
-                      <span>Downloads: <strong>{panel.downloadCount || 0}</strong></span>
-                      <span>{panel.version}</span>
-                    </div>
-                  </button>
-                ))}
+                    <select className="bg-black/25 text-gray-400 text-[11px] font-semibold py-1 px-2.5 rounded-lg border border-white/5 focus:outline-none">
+                      <option>Last 30 Days</option>
+                      <option>Last 7 Days</option>
+                    </select>
+                  </div>
+                </div>
 
-                {/* Create Custom Add-on Button */}
-                <button
-                  onClick={initiateCreatePanel}
-                  className="p-4 rounded-xl bg-indigo-600/5 hover:bg-indigo-600/10 border border-dashed border-indigo-500/30 flex flex-col items-center justify-center gap-2 text-indigo-400 hover:text-indigo-300 transition-all min-h-[120px] group"
+                {/* SVG Curves Graph */}
+                <div 
+                  className="relative h-60 w-full"
+                  onMouseLeave={() => setHoveredChartIndex(null)}
                 >
-                  <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                  <span className="text-[11px] font-bold font-sans uppercase tracking-wider">Add Add-on Panel</span>
-                </button>
+                  <svg 
+                    viewBox="0 0 800 240" 
+                    className="w-full h-full overflow-visible"
+                    onMouseMove={(e) => {
+                      const svgRect = e.currentTarget.getBoundingClientRect();
+                      const mouseX = e.clientX - svgRect.left;
+                      const segmentWidth = svgRect.width / 6;
+                      const nearestIndex = Math.min(6, Math.max(0, Math.round(mouseX / segmentWidth)));
+                      setHoveredChartIndex(nearestIndex);
+                    }}
+                  >
+                    {/* Grids / lines */}
+                    {[0, 60, 120, 180, 240].map((y, index) => (
+                      <line 
+                        key={index} 
+                        x1="0" 
+                        y1={y} 
+                        x2="800" 
+                        y2={y} 
+                        stroke="#ffffff" 
+                        strokeOpacity="0.04" 
+                        strokeWidth="1" 
+                      />
+                    ))}
+
+                    {/* Gradient Definitions */}
+                    <defs>
+                      <linearGradient id="purpleGlow" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#a855f7" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#a855f7" stopOpacity="0.0" />
+                      </linearGradient>
+                      <linearGradient id="blueGlow" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Filled Glow Curves */}
+                    <path 
+                      d="M 10 240 C 80 200, 140 220, 260 120 C 380 90, 480 160, 580 80 C 680 40, 740 60, 790 40 L 790 240 Z" 
+                      fill="url(#purpleGlow)" 
+                    />
+                    <path 
+                      d="M 10 240 C 80 220, 140 230, 260 170 C 380 150, 480 190, 580 130 C 680 110, 740 120, 790 100 L 790 240 Z" 
+                      fill="url(#blueGlow)" 
+                    />
+
+                    {/* Main Stroke Curves */}
+                    <path 
+                      d="M 10 240 C 80 200, 140 220, 260 120 C 380 90, 480 160, 580 80 C 680 40, 740 60, 790 40" 
+                      fill="none" 
+                      stroke="#a855f7" 
+                      strokeWidth="3.5" 
+                      strokeLinecap="round" 
+                    />
+                    <path 
+                      d="M 10 240 C 80 220, 140 230, 260 170 C 380 150, 480 190, 580 130 C 680 110, 740 120, 790 100" 
+                      fill="none" 
+                      stroke="#3b82f6" 
+                      strokeWidth="3.5" 
+                      strokeLinecap="round" 
+                    />
+
+                    {/* Dynamic Interactive vertical line */}
+                    {hoveredChartIndex !== null && (
+                      <line 
+                        x1={10 + hoveredChartIndex * (780 / 6)} 
+                        y1="10" 
+                        x2={10 + hoveredChartIndex * (780 / 6)} 
+                        y2="230" 
+                        stroke="#ffffff" 
+                        strokeOpacity="0.15" 
+                        strokeWidth="1.5" 
+                        strokeDasharray="4 4" 
+                      />
+                    )}
+
+                    {/* Data Points / Dots */}
+                    {[
+                      { yV: 240, yD: 240, label: 'May 25' },
+                      { yV: 202, yD: 221, label: 'May 30' },
+                      { yV: 154, yD: 185, label: 'Jun 4' },
+                      { yV: 110, yD: 158, label: 'Jun 9' },
+                      { yV: 140, yD: 172, label: 'Jun 14' },
+                      { yV: 78, yD: 125, label: 'Jun 19' },
+                      { yV: 40, yD: 100, label: 'Jun 24' }
+                    ].map((pt, index) => {
+                      const cx = 10 + index * (780 / 6);
+                      const isHovered = hoveredChartIndex === index;
+                      return (
+                        <g key={index} className="cursor-pointer">
+                          {/* Invisible touch target overlay */}
+                          <circle cx={cx} cy="120" r="25" fill="transparent" />
+
+                          {/* Purple Dot */}
+                          <circle 
+                            cx={cx} 
+                            cy={pt.yV} 
+                            r={isHovered ? "6" : "4.5"} 
+                            fill="#a855f7" 
+                            stroke="#ffffff" 
+                            strokeWidth={isHovered ? "2.5" : "1.5"} 
+                          />
+                          {/* Blue Dot */}
+                          <circle 
+                            cx={cx} 
+                            cy={pt.yD} 
+                            r={isHovered ? "6" : "4.5"} 
+                            fill="#3b82f6" 
+                            stroke="#ffffff" 
+                            strokeWidth={isHovered ? "2.5" : "1.5"} 
+                          />
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  {/* Horizontal Labels */}
+                  <div className="flex justify-between text-[10px] font-mono text-gray-500 px-2 mt-2">
+                    <span>May 25</span>
+                    <span>May 30</span>
+                    <span>Jun 4</span>
+                    <span>Jun 9</span>
+                    <span>Jun 14</span>
+                    <span>Jun 19</span>
+                    <span>Jun 24</span>
+                  </div>
+
+                  {/* High Fidelity interactive floating tooltip */}
+                  {hoveredChartIndex !== null && (() => {
+                    const dataPoints = [
+                      { date: 'May 25, 2026', visitors: '14,820', downloads: '3,110' },
+                      { date: 'May 30, 2026', visitors: '16,210', downloads: '3,340' },
+                      { date: 'Jun 04, 2026', visitors: '19,500', downloads: '3,890' },
+                      { date: 'Jun 09, 2026', visitors: '21,800', downloads: '4,100' },
+                      { date: 'Jun 14, 2026', visitors: '20,400', downloads: '3,950' },
+                      { date: 'Jun 19, 2026', visitors: '23,500', downloads: '4,520' },
+                      { date: 'Jun 24, 2026', visitors: '24,856', downloads: '5,214' }
+                    ];
+                    const selectedData = dataPoints[hoveredChartIndex];
+                    const leftPos = `${5 + hoveredChartIndex * 14.5}%`;
+                    return (
+                      <div 
+                        className="absolute bg-[#0f121d] border border-white/10 rounded-xl p-3 shadow-2xl z-20 text-[11px] pointer-events-none transform -translate-x-1/2 -translate-y-24"
+                        style={{ left: leftPos, top: '45%' }}
+                      >
+                        <span className="font-mono font-bold text-gray-400 block border-b border-white/5 pb-1 mb-1.5">{selectedData.date}</span>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between gap-6">
+                            <span className="text-gray-500 font-medium">Visitors:</span>
+                            <span className="font-mono font-extrabold text-purple-400">{selectedData.visitors}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-6">
+                            <span className="text-gray-500 font-medium">Downloads:</span>
+                            <span className="font-mono font-extrabold text-blue-400">{selectedData.downloads}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Doughnut Traffic Source Chart */}
+              <div className="p-5 bg-[#111420] border border-white/5 rounded-2xl flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-wide">Traffic Source</h3>
+                  <p className="text-[11px] text-gray-500 mb-6">Unique visitor referrers</p>
+                </div>
+
+                <div className="flex items-center justify-center gap-6 my-auto">
+                  {/* Doughnut Ring Visual representation */}
+                  <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 200 200" className="w-full h-full transform -rotate-90">
+                      {/* Grey background ring */}
+                      <circle cx="100" cy="100" r="70" fill="transparent" stroke="#1d2130" strokeWidth="22" />
+                      
+                      {/* Direct 45.2% - Purple */}
+                      <circle cx="100" cy="100" r="70" fill="transparent" stroke="#a855f7" strokeWidth="22" 
+                        strokeDasharray="439.8" strokeDashoffset="240.9" />
+                      
+                      {/* Google 28.7% - Blue */}
+                      <circle cx="100" cy="100" r="70" fill="transparent" stroke="#3b82f6" strokeWidth="22" 
+                        strokeDasharray="439.8" strokeDashoffset="314.1" transform="rotate(162.7 100 100)" />
+                      
+                      {/* Social Media 15.8% - Emerald */}
+                      <circle cx="100" cy="100" r="70" fill="transparent" stroke="#10b981" strokeWidth="22" 
+                        strokeDasharray="439.8" strokeDashoffset="370.4" transform="rotate(266 100 100)" />
+                      
+                      {/* Referral 7.1% - Amber */}
+                      <circle cx="100" cy="100" r="70" fill="transparent" stroke="#f59e0b" strokeWidth="22" 
+                        strokeDasharray="439.8" strokeDashoffset="408.6" transform="rotate(322.9 100 100)" />
+
+                      {/* Others 3.2% - Grey */}
+                      <circle cx="100" cy="100" r="70" fill="transparent" stroke="#64748b" strokeWidth="22" 
+                        strokeDasharray="439.8" strokeDashoffset="425.8" transform="rotate(348.5 100 100)" />
+                    </svg>
+
+                    {/* Centered label */}
+                    <div className="absolute flex flex-col items-center justify-center text-center">
+                      <span className="text-base font-extrabold text-white leading-tight">24,856</span>
+                      <span className="text-[9px] text-gray-500 font-medium">Total Visitors</span>
+                    </div>
+                  </div>
+
+                  {/* Interactive legend values */}
+                  <div className="space-y-2.5 text-left flex-1">
+                    {[
+                      { label: 'Direct', percentage: '45.2%', colorClass: 'bg-purple-500' },
+                      { label: 'Google', percentage: '28.7%', colorClass: 'bg-blue-500' },
+                      { label: 'Social Media', percentage: '15.8%', colorClass: 'bg-emerald-500' },
+                      { label: 'Referral', percentage: '7.1%', colorClass: 'bg-amber-500' },
+                      { label: 'Others', percentage: '3.2%', colorClass: 'bg-slate-500' }
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${item.colorClass}`} />
+                          <span className="text-gray-400 font-medium">{item.label}</span>
+                        </div>
+                        <span className="font-mono font-bold text-white">{item.percentage}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-white/5 text-center">
+                  <button 
+                    onClick={() => setActiveTab('stats')}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold inline-flex items-center gap-1.5 transition-colors"
+                  >
+                    <span>View full analytics</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Latest downloads list */}
-            <div className="backdrop-blur-md bg-slate-900/60 border border-white/10 rounded-2xl p-6">
-              <h3 className="text-md font-bold text-white mb-4 flex items-center gap-2">
-                <RefreshCw className="w-5 h-5 text-indigo-400 animate-spin" style={{ animationDuration: '6s' }} />
-                <span>Latest Telemetry Logs (Downloads)</span>
-              </h3>
+            {/* Bottom Row: Top Websites, Recent Downloads & Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              {/* Top Websites */}
+              <div className="p-5 bg-[#111420] border border-white/5 rounded-2xl flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-1">Top Websites</h3>
+                  <p className="text-[11px] text-gray-500 mb-4">Highest driver reference assets</p>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left font-mono text-xs text-gray-400">
-                  <thead className="bg-white/5 text-gray-200">
-                    <tr>
-                      <th className="p-3 rounded-l-lg">Panel Name</th>
-                      <th className="p-3">Client IP Address</th>
-                      <th className="p-3">User Agent Client</th>
-                      <th className="p-3 rounded-r-lg">Timestamp</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {stats.latestDownloads && stats.latestDownloads.length > 0 ? (
-                      stats.latestDownloads.map((log) => (
-                        <tr key={log.id} className="hover:bg-white/5 transition-colors">
-                          <td className="p-3 font-bold text-white">
-                            <span className={`px-2 py-0.5 rounded text-[10px] mr-2 ${
-                              log.panelId === 'pc' ? 'bg-blue-500/10 text-blue-400' :
-                              log.panelId === 'mobile' ? 'bg-purple-500/10 text-purple-400' :
-                              'bg-emerald-500/10 text-emerald-400'
-                            }`}>
-                              {log.panelId.toUpperCase()}
-                            </span>
-                            {log.panelId === 'pc' ? 'PC Panel' : log.panelId === 'mobile' ? 'Mobile APK' : 'Free Panel'}
-                          </td>
-                          <td className="p-3 font-semibold text-gray-300">{log.ip}</td>
-                          <td className="p-3 max-w-[200px] truncate" title={log.userAgent}>{log.userAgent}</td>
-                          <td className="p-3 text-gray-500">{new Date(log.timestamp).toLocaleString()}</td>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-[11px] text-gray-400">
+                      <thead>
+                        <tr className="border-b border-white/5 text-gray-500">
+                          <th className="pb-2 font-semibold">#</th>
+                          <th className="pb-2 font-semibold">Website Name</th>
+                          <th className="pb-2 font-semibold text-right">Visitors</th>
+                          <th className="pb-2 font-semibold text-right">Downloads</th>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4} className="p-8 text-center text-gray-500 italic">No telemetry logs available. Click download on the portal to generate records.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {[
+                          { name: 'TechNova - IT Solutions', visitors: '5,264', downloads: '1,258' },
+                          { name: 'EduSmart - LMS Platform', visitors: '4,856', downloads: '1,124' },
+                          { name: 'HealthCare Plus', visitors: '3,245', downloads: '685' },
+                          { name: 'Foodie - Restaurant', visitors: '2,987', downloads: '542' },
+                          { name: 'TravelEase - Booking', visitors: '2,456', downloads: '389' }
+                        ].map((site, index) => (
+                          <tr key={index} className="hover:text-white transition-colors">
+                            <td className="py-2.5 font-mono text-gray-500">{index + 1}</td>
+                            <td className="py-2.5 font-semibold truncate max-w-[120px]">{site.name}</td>
+                            <td className="py-2.5 text-right font-mono text-gray-300">{site.visitors}</td>
+                            <td className="py-2.5 text-right font-mono text-indigo-400">{site.downloads}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/5 text-center mt-4">
+                  <button 
+                    onClick={() => setActiveTab('website-list')}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold inline-flex items-center gap-1"
+                  >
+                    <span>View all websites</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Recent Downloads List */}
+              <div className="p-5 bg-[#111420] border border-white/5 rounded-2xl flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-1">Recent Downloads</h3>
+                  <p className="text-[11px] text-gray-500 mb-4">Latest live software logs</p>
+
+                  <div className="space-y-3">
+                    {[
+                      { name: 'Rohit Sharma', target: 'TechNova', time: '10:24 AM', colorClass: 'bg-emerald-500/10 text-emerald-400' },
+                      { name: 'Sneha Patel', target: 'EduSmart', time: '09:45 AM', colorClass: 'bg-blue-500/10 text-blue-400' },
+                      { name: 'Amit Kumar', target: 'HealthCare Plus', time: 'Yesterday', colorClass: 'bg-purple-500/10 text-purple-400' },
+                      { name: 'Neha Singh', target: 'Foodie', time: 'Yesterday', colorClass: 'bg-amber-500/10 text-amber-400' },
+                      { name: 'Vikram Joshi', target: 'TravelEase', time: 'Jun 23, 2026', colorClass: 'bg-indigo-500/10 text-indigo-400' }
+                    ].map((user, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 rounded-xl bg-white/[0.02] border border-white/5">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[11px] ${user.colorClass}`}>
+                            {user.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <div>
+                            <span className="text-[11px] font-bold text-white block leading-none">{user.name}</span>
+                            <span className="text-[9px] text-gray-400 block mt-1">Download: <strong className="text-gray-300">{user.target}</strong></span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-gray-500 font-mono">{user.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/5 text-center mt-4">
+                  <button 
+                    onClick={() => setActiveTab('visitors')}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold inline-flex items-center gap-1"
+                  >
+                    <span>View all downloads</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Stats & Promo upgrade card */}
+              <div className="space-y-4">
+                {/* Quick Stats List */}
+                <div className="p-5 bg-[#111420] border border-white/5 rounded-2xl space-y-3">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-1">Quick Stats</h3>
+                  
+                  <div className="space-y-2.5">
+                    {[
+                      { label: 'Today\'s Visitors', value: '1,245', gain: '12.5%', icon: Users },
+                      { label: 'Today\'s Downloads', value: '245', gain: '18.3%', icon: Download },
+                      { label: 'Today\'s Sales', value: '89', gain: '15.7%', icon: ShoppingCart },
+                      { label: 'Today\'s Revenue', value: '$985.00', gain: '17.2%', icon: DollarSign }
+                    ].map((stat, idx) => {
+                      const StatIcon = stat.icon;
+                      return (
+                        <div key={idx} className="flex items-center justify-between text-[11px]">
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <StatIcon className="w-3.5 h-3.5 text-gray-500" />
+                            <span>{stat.label}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-extrabold text-white">{stat.value}</span>
+                            <span className="font-mono text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1 py-0.2 rounded">↑ {stat.gain}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Promo Card: Need More Power Upgrade */}
+                <div className="p-5 bg-gradient-to-br from-indigo-950/50 to-purple-950/50 border border-indigo-500/15 rounded-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all duration-300" />
+                  
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-1 text-left">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Need More Power?</h4>
+                      <p className="text-[10px] text-gray-400 leading-relaxed">Upgrade to Premium for advanced analytics, automated billing, and live feedback monitors.</p>
+                    </div>
+
+                    <div className="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center shrink-0 border border-amber-500/20 shadow-lg shadow-amber-500/5">
+                      <Sparkles className="w-5 h-5 animate-pulse" />
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setActiveTab('billing')}
+                    className="w-full mt-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/15 hover:shadow-indigo-600/25 transition-all flex items-center justify-center gap-1"
+                  >
+                    <span>Upgrade Now</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1180,16 +1756,14 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
 
               {/* Actions footer */}
               <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-4">
-                {activeTab !== 'pc' && activeTab !== 'mobile' && activeTab !== 'free' ? (
-                  <button
-                    onClick={() => handleDeleteCustomPanel(activeTab, panelForms[activeTab]?.title || 'Custom Panel')}
-                    disabled={actionLoading}
-                    className="px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 font-semibold text-xs rounded-xl flex items-center gap-2 transition-all duration-150 select-none"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete Panel</span>
-                  </button>
-                ) : <div />}
+                <button
+                  onClick={() => handleDeleteCustomPanel(activeTab, panelForms[activeTab]?.title || 'Panel')}
+                  disabled={actionLoading}
+                  className="px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 font-semibold text-xs rounded-xl flex items-center gap-2 transition-all duration-150 select-none"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Panel</span>
+                </button>
 
                 <button
                   onClick={() => handleSavePanel(activeTab)}
@@ -2071,6 +2645,263 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
           </div>
         )}
 
+        {/* Access Keys Management Tab */}
+        {activeTab === 'keys' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                  <Key className="w-8 h-8 text-indigo-400" />
+                  <span>Access Keys Management</span>
+                </h1>
+                <p className="text-xs text-gray-400 font-mono mt-1">
+                  Manage the pool of keys for the Free Download Panel. Keys are claimed by visitors and expire automatically.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleGenerateTenKeys}
+                  disabled={actionLoading}
+                  className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs rounded-xl flex items-center gap-1.5 transition-all duration-150 shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4 animate-pulse" />
+                  <span>Generate 10 Free Keys</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Keys Statistics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[
+                {
+                  label: 'Total Keys Pool',
+                  value: keys.length,
+                  icon: Database,
+                  colorClass: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
+                },
+                {
+                  label: 'Active (Unclaimed)',
+                  value: keys.filter(k => k.status === 'active').length,
+                  icon: Sparkles,
+                  colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                },
+                {
+                  label: 'Claimed (In Use)',
+                  value: keys.filter(k => k.status === 'claimed').length,
+                  icon: Users,
+                  colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+                },
+                {
+                  label: 'Expired Keys',
+                  value: keys.filter(k => k.status === 'expired').length,
+                  icon: Clock,
+                  colorClass: 'text-gray-400 bg-gray-500/10 border-gray-500/20'
+                }
+              ].map((card, idx) => {
+                const IconComp = card.icon;
+                return (
+                  <div key={idx} className="p-4.5 bg-[#111420] border border-white/5 rounded-xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block mb-1">{card.label}</span>
+                      <h3 className="text-xl font-extrabold text-white tracking-tight">{card.value}</h3>
+                    </div>
+                    <div className={`p-2 rounded-xl border ${card.colorClass}`}>
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Add Key Form */}
+              <div className="lg:col-span-1 backdrop-blur-md bg-slate-900/60 border border-white/10 rounded-2xl p-5 space-y-4 self-start">
+                <h3 className="text-sm font-bold font-mono uppercase text-white tracking-wider flex items-center gap-1.5 pb-2 border-b border-white/5">
+                  <Plus className="w-4 h-4 text-indigo-400" />
+                  <span>Add Custom Key</span>
+                </h3>
+                <form onSubmit={handleAddKey} className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider font-mono mb-2">
+                      Access Key String
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. SPECIAL-PROMO-KEY"
+                      value={newKeyInput}
+                      onChange={(e) => setNewKeyInput(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-950/60 border border-white/10 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 text-white text-sm outline-none font-mono uppercase"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all duration-150 select-none cursor-pointer disabled:opacity-50"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Add Key to Pool</span>
+                  </button>
+                </form>
+              </div>
+
+              {/* Keys Pool List */}
+              <div className="lg:col-span-2 backdrop-blur-md bg-slate-900/60 border border-white/10 rounded-2xl p-5 space-y-4">
+                <h3 className="text-sm font-bold font-mono uppercase text-white tracking-wider flex items-center justify-between pb-2 border-b border-white/5">
+                  <span>Keys Registry Pool</span>
+                  <span className="text-[10px] font-mono font-normal text-gray-400 uppercase tracking-wider">
+                    {keys.length} Keys Total
+                  </span>
+                </h3>
+
+                {keys.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Database className="w-8 h-8 text-gray-500 mx-auto mb-2 animate-pulse" />
+                    <p className="text-xs text-gray-400 font-mono">No keys exist in pool.</p>
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Click "Generate 10 Free Keys" above to populate automatically.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/5 text-[10px] font-mono text-gray-400 uppercase tracking-wider">
+                          <th className="pb-3 font-semibold text-left">Key String</th>
+                          <th className="pb-3 font-semibold text-left">Status</th>
+                          <th className="pb-3 font-semibold text-left">Claimed By (IP)</th>
+                          <th className="pb-3 font-semibold text-left">Expires At</th>
+                          <th className="pb-3 font-semibold text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 text-xs font-mono">
+                        {keys.map((k) => (
+                          <tr key={k.id} className="hover:bg-white/[0.02] transition-colors">
+                            {editingKeyId === k.id ? (
+                              <>
+                                <td className="py-2 text-left">
+                                  <input
+                                    type="text"
+                                    value={editingKeyString}
+                                    onChange={(e) => setEditingKeyString(e.target.value)}
+                                    className="px-2 py-1 bg-slate-950 border border-white/10 rounded focus:border-indigo-500 text-white outline-none font-mono uppercase text-xs w-full max-w-[200px]"
+                                  />
+                                </td>
+                                <td className="py-2 text-left">
+                                  <select
+                                    value={editingKeyStatus}
+                                    onChange={(e) => setEditingKeyStatus(e.target.value as any)}
+                                    className="px-2 py-1 bg-slate-950 border border-white/10 rounded focus:border-indigo-500 text-white outline-none font-mono text-[11px]"
+                                  >
+                                    <option value="active">ACTIVE</option>
+                                    <option value="claimed">CLAIMED</option>
+                                    <option value="expired">EXPIRED</option>
+                                  </select>
+                                </td>
+                                <td className="py-2 text-left">
+                                  <input
+                                    type="text"
+                                    placeholder="None"
+                                    value={editingKeyClaimedByIp}
+                                    onChange={(e) => setEditingKeyClaimedByIp(e.target.value)}
+                                    className="px-2 py-1 bg-slate-950 border border-white/10 rounded focus:border-indigo-500 text-white outline-none font-mono text-xs w-full max-w-[120px]"
+                                  />
+                                </td>
+                                <td className="py-2 text-left">
+                                  <input
+                                    type="datetime-local"
+                                    value={editingKeyExpiresAt}
+                                    onChange={(e) => setEditingKeyExpiresAt(e.target.value)}
+                                    className="px-2 py-1 bg-slate-950 border border-white/10 rounded focus:border-indigo-500 text-white outline-none font-mono text-[11px] w-full max-w-[160px]"
+                                  />
+                                </td>
+                                <td className="py-2 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateKey(k.id)}
+                                      className="p-1.5 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded transition-colors"
+                                      title="Save Changes"
+                                    >
+                                      <Check className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingKeyId(null)}
+                                      className="p-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors"
+                                      title="Cancel"
+                                    >
+                                      <RefreshCw className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td className="py-3 font-bold text-gray-100 select-all tracking-wider text-left">
+                                  {k.keyString}
+                                </td>
+                                <td className="py-3 text-left">
+                                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                    k.status === 'active' 
+                                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10'
+                                      : k.status === 'claimed'
+                                      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/10'
+                                      : 'bg-red-500/10 text-red-400 border border-red-500/10'
+                                  }`}>
+                                    {k.status.toUpperCase()}
+                                  </span>
+                                </td>
+                                <td className="py-3 text-gray-400 text-left">
+                                  {k.claimedByIp ? (
+                                    <span className="bg-slate-950 px-1.5 py-0.5 rounded text-[11px] border border-white/5">
+                                      {k.claimedByIp}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-600">-</span>
+                                  )}
+                                </td>
+                                <td className="py-3 text-gray-400 text-[11px] text-left">
+                                  {k.expiresAt ? (
+                                    <span>{new Date(k.expiresAt).toLocaleString()}</span>
+                                  ) : (
+                                    <span className="text-gray-600">Never</span>
+                                  )}
+                                </td>
+                                <td className="py-3 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => startEditingKey(k)}
+                                      className="p-1.5 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 rounded transition-colors"
+                                      title="Edit Access Key"
+                                    >
+                                      <Edit className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteKey(k.id, k.keyString)}
+                                      className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                                      title="Delete Access Key"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Security / Admin Profile Tab */}
         {activeTab === 'profile' && (
           <div className="space-y-6">
@@ -2132,6 +2963,39 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
           </div>
         )}
       </main>
+
+      {confirmDialog && confirmDialog.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-md p-6 bg-[#0c0f1d] border border-white/10 rounded-2xl shadow-2xl space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-red-500/15 border border-red-500/20 rounded-xl text-red-400">
+                <AlertTriangle className="w-6 h-6 animate-pulse" />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-base font-bold text-white font-mono uppercase tracking-wider">{confirmDialog.title}</h3>
+                <p className="text-xs text-gray-400 leading-relaxed font-sans">{confirmDialog.message}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDialog(null)}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs rounded-xl transition-all cursor-pointer font-mono uppercase"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDialog.onConfirm}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-red-600/15 transition-all cursor-pointer font-mono uppercase"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
