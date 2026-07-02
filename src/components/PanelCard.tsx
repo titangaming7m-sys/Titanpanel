@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Download, Monitor, Smartphone, Gift, Calendar, HardDrive, CheckCircle2, Copy, Check, Loader2, Share2, AlertCircle, Users } from 'lucide-react';
 import { PanelConfig } from '../types';
+import { AdRenderer } from './AdRenderer';
 
 interface PanelCardProps {
   key?: string;
   panel: PanelConfig;
   onDownload: (id: string) => Promise<void>;
   whatsAppGroupUrl?: string;
+  adCode?: string;
 }
 
-export function PanelCard({ panel, onDownload, whatsAppGroupUrl }: PanelCardProps) {
+export function PanelCard({ panel, onDownload, whatsAppGroupUrl, adCode }: PanelCardProps) {
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -174,6 +176,21 @@ export function PanelCard({ panel, onDownload, whatsAppGroupUrl }: PanelCardProp
             <span className="truncate">Updated: <strong className="text-gray-200">{panel.lastUpdated || 'N/A'}</strong></span>
           </div>
         </div>
+
+        {/* Center Ad Placement */}
+        {adCode && (
+          <div className="mb-5">
+            <AdRenderer 
+              code={adCode} 
+              fallbackText={
+                panel.id === 'pc' ? '🎮 Earn Top CPM for Games and Software Sites - Adsterra Ad Network' :
+                panel.id === 'mobile' ? '📱 High CPM Mobile Popunder & Social Bar Ads by Adsterra' :
+                '🎁 Get Instant Payouts with Anti-Adblock Solutions - Try Adsterra'
+              }
+              className="w-full shrink-0" 
+            />
+          </div>
+        )}
 
         {/* Features Bullets List */}
         <div className="mb-6">

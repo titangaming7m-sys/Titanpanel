@@ -47,6 +47,13 @@ export interface WebsiteSettings {
   customCardBg?: string;
   effectIntensity?: number;       // Slider for effect speed/amount (1-100)
   loadingLogoUrl?: string;        // Custom loading screen logo URL
+
+  // Custom Ad Placements (HTML Code or Links)
+  adHeaderCode?: string;          // Header banner ad
+  adFooterCode?: string;          // Footer banner ad
+  adPcBannerCode?: string;        // PC Panel Card ad placement
+  adMobileBannerCode?: string;    // Mobile Panel Card ad placement
+  adFreeBannerCode?: string;      // Free Panel Card ad placement
 }
 
 export interface DownloadLog {

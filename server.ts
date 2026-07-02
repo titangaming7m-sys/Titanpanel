@@ -314,7 +314,8 @@ app.post('/api/admin/settings', requireAdmin, async (req, res) => {
       whatsappBotEnabled, telegramBotEnabled,
       activeTheme, activeEffect, effectIntensity,
       customPrimary, customSecondary, customAccent, customBg, customCardBg,
-      loadingLogoUrl
+      loadingLogoUrl,
+      adHeaderCode, adFooterCode, adPcBannerCode, adMobileBannerCode, adFreeBannerCode
     } = req.body;
     
     // Strict Input Validation
@@ -347,6 +348,11 @@ app.post('/api/admin/settings', requireAdmin, async (req, res) => {
       customBg: customBg || '',
       customCardBg: customCardBg || '',
       loadingLogoUrl: loadingLogoUrl || '',
+      adHeaderCode: adHeaderCode || '',
+      adFooterCode: adFooterCode || '',
+      adPcBannerCode: adPcBannerCode || '',
+      adMobileBannerCode: adMobileBannerCode || '',
+      adFreeBannerCode: adFreeBannerCode || '',
     });
 
     res.json({ success: true, settings: updated });

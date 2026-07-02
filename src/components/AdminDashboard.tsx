@@ -2009,6 +2009,83 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
                   </div>
                 </div>
 
+                {/* Adsterra Monetization Ad Codes */}
+                <div className="sm:col-span-2 border-t border-white/5 pt-6 mt-6">
+                  <h3 className="text-sm font-bold font-mono uppercase text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 tracking-wider mb-2 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-emerald-400" /> Adsterra Monetization & Ad Codes
+                  </h3>
+                  <p className="text-xs text-gray-400 mb-6">
+                    Configure your HTML ad codes, script tags, or banner link URLs below. These ads will display across designated locations on the homepage.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono mb-2">
+                        Header Banner Ad Code / URL
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={settingsForm.adHeaderCode || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, adHeaderCode: e.target.value })}
+                        placeholder="Paste your HTML script or link (e.g. https://adsterra.com/...)"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 text-white text-xs font-mono outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono mb-2">
+                        Footer Banner Ad Code / URL
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={settingsForm.adFooterCode || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, adFooterCode: e.target.value })}
+                        placeholder="Paste your HTML script or link (e.g. https://adsterra.com/...)"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 text-white text-xs font-mono outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono mb-2">
+                        PC Card Banner Ad Code / URL
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={settingsForm.adPcBannerCode || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, adPcBannerCode: e.target.value })}
+                        placeholder="Paste your HTML script or link"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 text-white text-xs font-mono outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono mb-2">
+                        Mobile Card Banner Ad Code / URL
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={settingsForm.adMobileBannerCode || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, adMobileBannerCode: e.target.value })}
+                        placeholder="Paste your HTML script or link"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 text-white text-xs font-mono outline-none"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono mb-2">
+                        Free Card Banner Ad Code / URL
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={settingsForm.adFreeBannerCode || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, adFreeBannerCode: e.target.value })}
+                        placeholder="Paste your HTML script or link"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 text-white text-xs font-mono outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* 30+ Colors & 15 Effects Designer Panel */}
                 <div className="sm:col-span-2 border-t border-white/5 pt-6 mt-6">
                   <h3 className="text-sm font-bold font-mono uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 tracking-wider mb-2">

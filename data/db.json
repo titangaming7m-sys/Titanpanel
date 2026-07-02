@@ -5,9 +5,9 @@
     "bannerUrl": "https://i.postimg.cc/MTD8xvXf/file-00000000ee0871f8bb7d0a28cb43c02a-fotor-2026070165731.png",
     "footerText": "© 2026 Panel Download Center. All Rights Reserved.",
     "socialLinks": {
-      "telegram": "https://t.me",
       "twitter": "https://twitter.com",
       "github": "https://github.com",
+      "telegram": "https://t.me",
       "discord": "https://discord.gg"
     },
     "contactEmail": "support@paneldownloadcenter.com",
@@ -20,7 +20,7 @@
     "chatbotWelcomeMessage": "WhatsApp Chatbot",
     "whatsappBotEnabled": true,
     "telegramBotEnabled": false,
-    "totalVisitors": 1030,
+    "totalVisitors": 1032,
     "activeTheme": "gilded-luxury",
     "activeEffect": "honeycomb",
     "customPrimary": "#fbbf24",
@@ -33,57 +33,57 @@
   },
   "panels": {
     "pc": {
-      "imageUrl": "Monitor",
-      "fileSize": "15.4 MB",
+      "lastUpdated": "June 25, 2026",
+      "downloadUrl": "/uploads/pc_panel_default.zip",
       "title": "PC Panel",
-      "version": "v2.5.1",
-      "enabled": true,
       "downloadCount": 1451,
       "id": "pc",
+      "fileSize": "15.4 MB",
+      "enabled": true,
+      "version": "v2.5.1",
       "features": [
         "Instant Injector",
         "Custom Floating Menu",
         "System Opt Keybinds",
         "FPS Overlay Mode"
       ],
-      "downloadUrl": "/uploads/pc_panel_default.zip",
-      "lastUpdated": "June 25, 2026",
+      "imageUrl": "Monitor",
       "description": "Ultimate overlay and settings optimizer for desktop PCs. Experience buttery smooth performance and extensive customizations."
     },
     "mobile": {
-      "description": "Premium floating mod menu APK for android devices. Optimized for high refresh rate mobile screens.",
+      "title": "Mobile Panel",
+      "downloadCount": 3120,
+      "id": "mobile",
+      "fileSize": "8.2 MB",
+      "version": "v1.8.0",
+      "enabled": true,
+      "lastUpdated": "June 28, 2026",
+      "downloadUrl": "/uploads/mobile_panel_default.apk",
       "features": [
         "Anti-Ban Protection",
         "Floating Control Bar",
         "Zero Root Needed",
         "Battery Saver Mode"
       ],
-      "lastUpdated": "June 28, 2026",
-      "downloadUrl": "/uploads/mobile_panel_default.apk",
-      "id": "mobile",
-      "downloadCount": 3120,
-      "enabled": true,
-      "version": "v1.8.0",
-      "title": "Mobile Panel",
-      "fileSize": "8.2 MB",
-      "imageUrl": "Smartphone"
+      "imageUrl": "Smartphone",
+      "description": "Premium floating mod menu APK for android devices. Optimized for high refresh rate mobile screens."
     },
     "free": {
-      "title": "Free Panel",
-      "fileSize": "5.1 MB",
-      "imageUrl": "Gift",
-      "version": "v1.0.0",
-      "id": "free",
-      "downloadCount": 5690,
-      "enabled": true,
-      "description": "Get started immediately with our free layout customizer. Secure and completely free forever.",
       "features": [
         "Clean Interface",
         "Basic Controls",
         "Community Support"
       ],
+      "description": "Get started immediately with our free layout customizer. Secure and completely free forever.",
+      "imageUrl": "Gift",
       "lastUpdated": "June 10, 2026",
-      "downloadUrl": "/uploads/free_panel_default.zip"
+      "downloadUrl": "/uploads/free_panel_default.zip",
+      "id": "free",
+      "downloadCount": 5690,
+      "title": "Free Panel",
+      "version": "v1.0.0",
+      "enabled": true,
+      "fileSize": "5.1 MB"
     }
   },
   "admin": {
@@ -92,223 +92,313 @@
   },
   "downloads": [
     {
-      "id": "mbsyh4p",
-      "timestamp": "2026-07-01T11:43:06.222Z",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36",
       "panelId": "pc",
-      "ip": "2401:4900:cab0:c9bc:c422:f29c:4e3a:6912, 169.254.169.126"
+      "ip": "2401:4900:cab0:c9bc:c422:f29c:4e3a:6912, 169.254.169.126",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36",
+      "id": "mbsyh4p",
+      "timestamp": "2026-07-01T11:43:06.222Z"
     },
     {
-      "id": "1",
-      "timestamp": "2026-07-01T00:27:35.557Z",
+      "userAgent": "Mozilla",
       "ip": "127.0.0.1",
       "panelId": "mobile",
-      "userAgent": "Mozilla"
+      "timestamp": "2026-07-01T00:27:35.557Z",
+      "id": "1"
     },
     {
-      "timestamp": "2026-07-01T00:22:25.558Z",
-      "userAgent": "Chrome",
-      "panelId": "pc",
       "ip": "192.168.1.10",
+      "panelId": "pc",
+      "userAgent": "Chrome",
+      "timestamp": "2026-07-01T00:22:25.558Z",
       "id": "2"
     },
     {
-      "timestamp": "2026-07-01T00:13:25.558Z",
-      "ip": "8.8.8.8",
-      "panelId": "free",
       "userAgent": "Safari",
-      "id": "3"
+      "panelId": "free",
+      "ip": "8.8.8.8",
+      "id": "3",
+      "timestamp": "2026-07-01T00:13:25.558Z"
     }
   ],
   "keys": [
     {
       "status": "claimed",
-      "claimedAt": "2026-07-01T11:51:37.984Z",
-      "createdAt": "2026-07-01T11:51:22.376Z",
       "expiresAt": "2026-07-02T11:51:37.984Z",
+      "createdAt": "2026-07-01T11:51:22.376Z",
       "id": "key_1",
+      "claimedAt": "2026-07-01T11:51:37.984Z",
       "claimedByIp": "2401:4900:cab0:c9bc:c422:f29c:4e3a:6912, 169.254.169.126",
       "keyString": "FREE-1000-6G1A"
     },
     {
+      "status": "active",
+      "id": "key_3",
       "claimedByIp": null,
-      "id": "key_2",
-      "keyString": "FREE-1001-1DOJ",
+      "keyString": "FREE-1002-URLV",
+      "claimedAt": null,
+      "expiresAt": null,
+      "createdAt": "2026-07-01T11:51:22.376Z"
+    },
+    {
+      "status": "active",
+      "expiresAt": null,
       "createdAt": "2026-07-01T11:51:22.376Z",
+      "id": "key_4",
+      "claimedByIp": null,
+      "keyString": "FREE-1003-C40A",
+      "claimedAt": null
+    },
+    {
+      "status": "active",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "id": "key_5",
+      "keyString": "FREE-1004-ALT8",
+      "claimedAt": null,
+      "claimedByIp": null
+    },
+    {
+      "status": "active",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "id": "key_6",
+      "claimedAt": null,
+      "keyString": "FREE-1005-DD1V",
+      "claimedByIp": null
+    },
+    {
+      "id": "key_7",
+      "keyString": "FREE-1006-MGP6",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "expiresAt": null,
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "status": "active"
+    },
+    {
+      "claimedAt": null,
+      "keyString": "FREE-1007-VYCS",
+      "claimedByIp": null,
+      "id": "key_8",
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "keyString": "FREE-1008-CFRG",
+      "claimedAt": null,
+      "claimedByIp": null,
+      "id": "key_9",
+      "createdAt": "2026-07-01T11:51:22.377Z",
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "status": "active",
+      "createdAt": "2026-07-01T11:51:22.377Z",
       "expiresAt": null,
       "claimedAt": null,
+      "keyString": "FREE-1009-AKTB",
+      "claimedByIp": null,
+      "id": "key_10"
+    },
+    {
+      "createdAt": "2026-07-01T12:06:31.609Z",
+      "expiresAt": null,
+      "claimedAt": null,
+      "claimedByIp": null,
+      "keyString": "TESTKEY123",
+      "id": "key_tr3texb",
       "status": "active"
     },
     {
       "status": "active",
       "claimedAt": null,
-      "createdAt": "2026-07-01T11:51:22.376Z",
-      "expiresAt": null,
-      "keyString": "FREE-1002-URLV",
+      "keyString": "FREE-U4RN-1A4L",
       "claimedByIp": null,
-      "id": "key_3"
-    },
-    {
-      "status": "active",
-      "claimedAt": null,
-      "createdAt": "2026-07-01T11:51:22.376Z",
-      "expiresAt": null,
-      "claimedByIp": null,
-      "id": "key_4",
-      "keyString": "FREE-1003-C40A"
-    },
-    {
-      "expiresAt": null,
-      "createdAt": "2026-07-01T11:51:22.377Z",
-      "keyString": "FREE-1004-ALT8",
-      "claimedByIp": null,
-      "id": "key_5",
-      "status": "active",
-      "claimedAt": null
-    },
-    {
-      "createdAt": "2026-07-01T11:51:22.377Z",
-      "expiresAt": null,
-      "claimedByIp": null,
-      "keyString": "FREE-1005-DD1V",
-      "id": "key_6",
-      "status": "active",
-      "claimedAt": null
-    },
-    {
-      "claimedAt": null,
-      "status": "active",
-      "keyString": "FREE-1006-MGP6",
-      "id": "key_7",
-      "claimedByIp": null,
-      "createdAt": "2026-07-01T11:51:22.377Z",
+      "id": "key_ym11l6j",
+      "createdAt": "2026-07-01T12:06:33.144Z",
       "expiresAt": null
     },
     {
-      "claimedAt": null,
       "status": "active",
+      "id": "key_abo5i7g",
+      "keyString": "FREE-0HBH-BVRJ",
+      "claimedAt": null,
       "claimedByIp": null,
-      "keyString": "FREE-1007-VYCS",
-      "id": "key_8",
       "expiresAt": null,
-      "createdAt": "2026-07-01T11:51:22.377Z"
+      "createdAt": "2026-07-01T12:06:33.144Z"
     },
     {
-      "claimedAt": null,
-      "status": "active",
-      "id": "key_9",
-      "claimedByIp": null,
-      "keyString": "FREE-1008-CFRG",
       "expiresAt": null,
-      "createdAt": "2026-07-01T11:51:22.377Z"
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "id": "key_gv5z4v3",
+      "keyString": "FREE-E2M8-1ZNX",
+      "claimedAt": null,
+      "claimedByIp": null,
+      "status": "active"
     },
     {
-      "createdAt": "2026-07-01T11:51:22.377Z",
-      "expiresAt": null,
-      "keyString": "FREE-1009-AKTB",
-      "claimedByIp": null,
-      "id": "key_10",
       "status": "active",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "expiresAt": null,
+      "claimedByIp": null,
+      "claimedAt": null,
+      "keyString": "FREE-PSSE-9Z9X",
+      "id": "key_v9v9juj"
+    },
+    {
+      "claimedByIp": null,
+      "claimedAt": null,
+      "keyString": "FREE-562A-8D99",
+      "id": "key_1fcvhjy",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "expiresAt": null,
+      "status": "active"
+    },
+    {
+      "status": "active",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "expiresAt": null,
+      "claimedAt": null,
+      "keyString": "FREE-0A2I-FL8U",
+      "claimedByIp": null,
+      "id": "key_nqiy1hs"
+    },
+    {
+      "status": "active",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "expiresAt": null,
+      "claimedByIp": null,
+      "claimedAt": null,
+      "keyString": "FREE-4H5V-H0SY",
+      "id": "key_1e4trp1"
+    },
+    {
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "expiresAt": null,
+      "claimedAt": null,
+      "keyString": "FREE-9P4Q-97B5",
+      "claimedByIp": null,
+      "id": "key_n00to9v",
+      "status": "active"
+    },
+    {
+      "status": "active",
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "expiresAt": null,
+      "keyString": "FREE-GPY3-2R2U",
+      "claimedAt": null,
+      "claimedByIp": null,
+      "id": "key_g3zcztr"
+    },
+    {
+      "createdAt": "2026-07-01T12:06:33.144Z",
+      "expiresAt": null,
+      "claimedByIp": null,
+      "claimedAt": null,
+      "keyString": "FREE-G5SU-2XPK",
+      "id": "key_15bpaij",
+      "status": "active"
+    },
+    {
+      "status": "active",
+      "createdAt": "2026-07-01T16:09:59.187Z",
+      "expiresAt": null,
+      "keyString": "1234",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "id": "key_wurjy45"
+    },
+    {
+      "createdAt": "2026-07-01T16:16:54.604Z",
+      "expiresAt": null,
+      "claimedByIp": null,
+      "keyString": "FREE-OFBK-1333",
+      "claimedAt": null,
+      "id": "key_7i33x0w",
+      "status": "active"
+    },
+    {
+      "status": "active",
+      "id": "key_jd252ds",
+      "claimedAt": null,
+      "claimedByIp": null,
+      "keyString": "FREE-DW7A-6K3V",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T16:16:54.604Z"
+    },
+    {
+      "status": "active",
+      "createdAt": "2026-07-01T16:16:54.604Z",
+      "expiresAt": null,
+      "keyString": "FREE-G9IO-HVOK",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "id": "key_5bs1ym8"
+    },
+    {
+      "status": "active",
+      "id": "key_4ikfzda",
+      "claimedByIp": null,
+      "claimedAt": null,
+      "keyString": "FREE-G7J1-KAOU",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T16:16:54.604Z"
+    },
+    {
+      "status": "active",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T16:16:54.604Z",
+      "id": "key_am1n999",
+      "keyString": "FREE-NDP7-VR6D",
+      "claimedByIp": null,
       "claimedAt": null
     },
     {
-      "id": "key_tr3texb",
-      "keyString": "TESTKEY123",
-      "createdAt": "2026-07-01T12:06:31.609Z",
+      "status": "active",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T16:16:54.604Z",
+      "id": "key_pets84s",
+      "keyString": "FREE-53AD-F3V8",
+      "claimedAt": null,
+      "claimedByIp": null
+    },
+    {
+      "keyString": "FREE-LN8B-82FW",
       "claimedByIp": null,
       "claimedAt": null,
+      "id": "key_cylon5n",
+      "createdAt": "2026-07-01T16:16:54.604Z",
       "expiresAt": null,
       "status": "active"
     },
     {
-      "id": "key_ym11l6j",
-      "keyString": "FREE-U4RN-1A4L",
-      "createdAt": "2026-07-01T12:06:33.144Z",
+      "status": "active",
+      "expiresAt": null,
+      "createdAt": "2026-07-01T16:16:54.604Z",
+      "id": "key_788o23a",
+      "claimedAt": null,
+      "keyString": "FREE-NSSI-TO1C",
+      "claimedByIp": null
+    },
+    {
+      "id": "key_hzq1hyr",
       "claimedByIp": null,
+      "keyString": "FREE-47FT-WDWJ",
       "claimedAt": null,
       "expiresAt": null,
+      "createdAt": "2026-07-01T16:16:54.604Z",
       "status": "active"
     },
     {
-      "id": "key_abo5i7g",
-      "keyString": "FREE-0HBH-BVRJ",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
+      "status": "active",
       "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_gv5z4v3",
-      "keyString": "FREE-E2M8-1ZNX",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
+      "createdAt": "2026-07-01T16:16:54.604Z",
+      "id": "key_x8qsn42",
+      "keyString": "FREE-7TIF-H3OM",
       "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_v9v9juj",
-      "keyString": "FREE-PSSE-9Z9X",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_1fcvhjy",
-      "keyString": "FREE-562A-8D99",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_nqiy1hs",
-      "keyString": "FREE-0A2I-FL8U",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_1e4trp1",
-      "keyString": "FREE-4H5V-H0SY",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_n00to9v",
-      "keyString": "FREE-9P4Q-97B5",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_g3zcztr",
-      "keyString": "FREE-GPY3-2R2U",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
-    },
-    {
-      "id": "key_15bpaij",
-      "keyString": "FREE-G5SU-2XPK",
-      "createdAt": "2026-07-01T12:06:33.144Z",
-      "claimedByIp": null,
-      "claimedAt": null,
-      "expiresAt": null,
-      "status": "active"
+      "claimedByIp": null
     }
   ]
 }

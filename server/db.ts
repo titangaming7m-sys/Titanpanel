@@ -58,6 +58,11 @@ const defaultSettings: WebsiteSettings = {
   customCardBg: '#1e293b',
   effectIntensity: 50,
   loadingLogoUrl: '',
+  adHeaderCode: '',
+  adFooterCode: '',
+  adPcBannerCode: '',
+  adMobileBannerCode: '',
+  adFreeBannerCode: '',
 };
 
 const defaultPanels: Record<string, PanelConfig> = {

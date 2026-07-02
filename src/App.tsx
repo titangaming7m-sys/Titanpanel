@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PanelCard } from './components/PanelCard';
+import { AdRenderer } from './components/AdRenderer';
 import { AdminLogin } from './components/AdminLogin';
 import { AdminDashboard } from './components/AdminDashboard';
 import {
@@ -414,6 +415,16 @@ export default function App() {
             )}
           </header>
 
+          {/* Header Ad Placement */}
+          {activeSettings?.adHeaderCode && (
+            <div className="max-w-7xl mx-auto px-6 pt-6">
+              <AdRenderer 
+                code={activeSettings.adHeaderCode} 
+                fallbackText="⚡ High-Paying Ad Network for Publishers - Join Adsterra Today!" 
+              />
+            </div>
+          )}
+
           {/* Hero Banner Section */}
           <section className="relative py-12 px-6 overflow-hidden">
             {/* Banner background - custom uploaded banner or a beautiful default gradient backing */}
@@ -476,6 +487,11 @@ export default function App() {
                     panel={panel} 
                     onDownload={handleDownloadTrigger} 
                     whatsAppGroupUrl={contactWhatsAppGroup} 
+                    adCode={
+                      panel.id === 'pc' ? activeSettings?.adPcBannerCode :
+                      panel.id === 'mobile' ? activeSettings?.adMobileBannerCode :
+                      panel.id === 'free' ? activeSettings?.adFreeBannerCode : undefined
+                    }
                   />
                 ))}
               </div>
@@ -484,6 +500,14 @@ export default function App() {
 
           {/* Secure footer */}
           <footer className="bg-black/40 border-t border-white/10 mt-auto py-12 px-6 theme-custom-border relative">
+            {activeSettings?.adFooterCode && (
+              <div className="max-w-7xl mx-auto mb-8 pb-8 border-b border-white/5">
+                <AdRenderer 
+                  code={activeSettings.adFooterCode} 
+                  fallbackText="🚀 Monetize 100% of Your Desktop & Mobile Traffic with Adsterra" 
+                />
+              </div>
+            )}
             <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-3">
                 {logoUrl ? (
