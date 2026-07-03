@@ -2086,6 +2086,78 @@ export function AdminDashboard({ token, onLogout, onBrandingChange, onSaveSettin
                   </div>
                 </div>
 
+                {/* Google AdSense Integration & Verification */}
+                <div className="sm:col-span-2 border-t border-white/5 pt-6 mt-6">
+                  <h3 className="text-sm font-bold font-mono uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500 tracking-wider mb-2 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-amber-400" /> Google AdSense Verification & Integration
+                  </h3>
+                  <p className="text-xs text-gray-400 mb-6 font-sans">
+                    Verify site ownership and activate Google AdSense ads. Paste your auto-ad codes, meta tags, and root ads.txt snippet below to authorize monetization.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* AdSense Code Snippet */}
+                    <div className="md:col-span-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider font-mono">
+                          AdSense Code Snippet
+                        </label>
+                        <span className="text-[10px] text-amber-400 font-mono font-bold uppercase">Header Code</span>
+                      </div>
+                      <textarea
+                        rows={6}
+                        value={settingsForm.adsenseCode || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, adsenseCode: e.target.value })}
+                        placeholder="<!-- Google AdSense Auto-Ads Code -->&#10;<script async src=&quot;https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx&quot; crossorigin=&quot;anonymous&quot;></script>"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500/10 text-white text-xs font-mono outline-none resize-none leading-relaxed"
+                      />
+                      <span className="text-[10px] text-gray-500 font-mono mt-1.5 block leading-normal">
+                        Insert the raw JS verification or auto-ads script snippet. It is automatically injected into the page head.
+                      </span>
+                    </div>
+
+                    {/* Meta Tag Verification */}
+                    <div className="md:col-span-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider font-mono">
+                          Ownership Meta Tag
+                        </label>
+                        <span className="text-[10px] text-amber-400 font-mono font-bold uppercase">Site Verify</span>
+                      </div>
+                      <textarea
+                        rows={6}
+                        value={settingsForm.metaTag || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, metaTag: e.target.value })}
+                        placeholder="<!-- AdSense/Google Verification Meta Tag -->&#10;<meta name=&quot;google-adsense-account&quot; content=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot;>"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500/10 text-white text-xs font-mono outline-none resize-none leading-relaxed"
+                      />
+                      <span className="text-[10px] text-gray-500 font-mono mt-1.5 block leading-normal">
+                        Paste the full HTML meta tag supplied by AdSense or Google Search Console to prove site ownership.
+                      </span>
+                    </div>
+
+                    {/* Ads.txt Content */}
+                    <div className="md:col-span-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider font-mono">
+                          Ads.txt File Content
+                        </label>
+                        <span className="text-[10px] text-amber-400 font-mono font-bold uppercase">ads.txt</span>
+                      </div>
+                      <textarea
+                        rows={6}
+                        value={settingsForm.adsTxt || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, adsTxt: e.target.value })}
+                        placeholder="google.com, pub-xxxxxxxxxxxxxxxx, DIRECT, f08c47fec0942fa0"
+                        className="w-full p-3 bg-slate-950/60 border border-white/10 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500/10 text-white text-xs font-mono outline-none resize-none leading-relaxed"
+                      />
+                      <span className="text-[10px] text-gray-500 font-mono mt-1.5 block leading-normal">
+                        Enter your ads.txt records line by line. These will be served dynamically on your root path at <code className="text-gray-300">/ads.txt</code>.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* 30+ Colors & 15 Effects Designer Panel */}
                 <div className="sm:col-span-2 border-t border-white/5 pt-6 mt-6">
                   <h3 className="text-sm font-bold font-mono uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 tracking-wider mb-2">

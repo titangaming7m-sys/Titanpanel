@@ -190,6 +190,16 @@ app.post('/api/visit', async (req, res) => {
 });
 
 // 2. Fetch public configuration (Settings + Panels)
+app.get('/ads.txt', async (req, res) => {
+  try {
+    const settings = await getSettings();
+    res.type('text/plain');
+    res.send(settings.adsTxt || '');
+  } catch (err: any) {
+    res.status(500).send('Error serving ads.txt');
+  }
+});
+
 app.get('/api/config', async (req, res) => {
   try {
     const settings = await getSettings();
@@ -315,7 +325,8 @@ app.post('/api/admin/settings', requireAdmin, async (req, res) => {
       activeTheme, activeEffect, effectIntensity,
       customPrimary, customSecondary, customAccent, customBg, customCardBg,
       loadingLogoUrl,
-      adHeaderCode, adFooterCode, adPcBannerCode, adMobileBannerCode, adFreeBannerCode
+      adHeaderCode, adFooterCode, adPcBannerCode, adMobileBannerCode, adFreeBannerCode,
+      adsenseCode, adsTxt, metaTag
     } = req.body;
     
     // Strict Input Validation
@@ -353,6 +364,9 @@ app.post('/api/admin/settings', requireAdmin, async (req, res) => {
       adPcBannerCode: adPcBannerCode || '',
       adMobileBannerCode: adMobileBannerCode || '',
       adFreeBannerCode: adFreeBannerCode || '',
+      adsenseCode: adsenseCode || '',
+      adsTxt: adsTxt || '',
+      metaTag: metaTag || '',
     });
 
     res.json({ success: true, settings: updated });
@@ -643,10 +657,34 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    // SPA fallback
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.use(express.static(distPath, { index: false }));
+    // SPA fallback with dynamic head tag injection for AdSense verification crawlers
+    app.get('*', async (req, res) => {
+      try {
+        const indexPath = path.join(distPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          let html = fs.readFileSync(indexPath, 'utf-8');
+          const settings = await getSettings();
+          
+          let headInjection = '';
+          if (settings.metaTag) {
+            headInjection += `\n<!-- Google AdSense Verification Meta Tag Server-Side Injection -->\n${settings.metaTag}\n`;
+          }
+          if (settings.adsenseCode) {
+            headInjection += `\n<!-- Google AdSense Code Snippet Server-Side Injection -->\n${settings.adsenseCode}\n`;
+          }
+          
+          if (headInjection) {
+            html = html.replace('</head>', `${headInjection}</head>`);
+          }
+          
+          res.send(html);
+        } else {
+          res.sendFile(indexPath);
+        }
+      } catch (err) {
+        res.sendFile(path.join(distPath, 'index.html'));
+      }
     });
   }
 

@@ -42,6 +42,83 @@ export default function App() {
     localStorage.getItem('admin_username')
   );
 
+  // Define dynamic settings fallbacks
+  const activeSettings = previewSettings || settings;
+
+  // Google AdSense Verification & Script Injection Hook
+  useEffect(() => {
+    if (!activeSettings) return;
+
+    // 1. Clear any previous AdSense verification meta tags to avoid duplication
+    const existingMetas = document.querySelectorAll('meta[data-adsense-verification]');
+    existingMetas.forEach(el => el.remove());
+
+    if (activeSettings.metaTag) {
+      const trimmedMeta = activeSettings.metaTag.trim();
+      if (trimmedMeta.startsWith('<')) {
+        // User pasted a raw tag, e.g., <meta name="google-adsense-account" content="ca-pub-xxx">
+        const parser = new DOMParser();
+        const docHtml = parser.parseFromString(trimmedMeta, 'text/html');
+        const metaTag = docHtml.querySelector('meta');
+        if (metaTag) {
+          const newMeta = document.createElement('meta');
+          Array.from(metaTag.attributes).forEach(attr => {
+            newMeta.setAttribute(attr.name, attr.value);
+          });
+          newMeta.setAttribute('data-adsense-verification', 'true');
+          document.head.appendChild(newMeta);
+        }
+      } else {
+        // Fallback: If it's just the plain ID (e.g., ca-pub-xxx), create standard google-adsense-account meta
+        const newMeta = document.createElement('meta');
+        newMeta.name = 'google-adsense-account';
+        newMeta.content = trimmedMeta;
+        newMeta.setAttribute('data-adsense-verification', 'true');
+        document.head.appendChild(newMeta);
+      }
+    }
+
+    // 2. Clear previous AdSense JS scripts to avoid duplication
+    const existingScripts = document.querySelectorAll('script[data-adsense-code]');
+    existingScripts.forEach(el => el.remove());
+
+    if (activeSettings.adsenseCode) {
+      const trimmedCode = activeSettings.adsenseCode.trim();
+      if (trimmedCode.includes('<script')) {
+        // User pasted full script tag(s). Parse and inject them.
+        const parser = new DOMParser();
+        const parsedDoc = parser.parseFromString(`<div>${trimmedCode}</div>`, 'text/html');
+        const scriptTags = parsedDoc.querySelectorAll('script');
+        
+        scriptTags.forEach(scriptTag => {
+          const newScript = document.createElement('script');
+          newScript.setAttribute('data-adsense-code', 'true');
+          
+          // Copy all attributes
+          Array.from(scriptTag.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+          
+          // Copy script content
+          newScript.textContent = scriptTag.textContent;
+          document.head.appendChild(newScript);
+        });
+      } else {
+        // Plain JS snippet or client URL link fallback
+        const newScript = document.createElement('script');
+        newScript.setAttribute('data-adsense-code', 'true');
+        if (trimmedCode.startsWith('http')) {
+          newScript.src = trimmedCode;
+          newScript.async = true;
+          newScript.crossOrigin = 'anonymous';
+        } else {
+          newScript.textContent = trimmedCode;
+        }
+        document.head.appendChild(newScript);
+      }
+    }
+  }, [activeSettings]);
+
   // Parse location hash on load to enable deep-linking to #admin
   useEffect(() => {
     const handleHashChange = () => {
@@ -203,8 +280,6 @@ export default function App() {
     );
   }
 
-  // Define dynamic settings fallbacks
-  const activeSettings = previewSettings || settings;
   const activeThemeId = activeSettings?.activeTheme || 'cyberpunk-neon';
   const activeEffectId = activeSettings?.activeEffect || 'starfield';
   const intensityValue = activeSettings?.effectIntensity ?? 50;

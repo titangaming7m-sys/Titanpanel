@@ -63,6 +63,9 @@ const defaultSettings: WebsiteSettings = {
   adPcBannerCode: '',
   adMobileBannerCode: '',
   adFreeBannerCode: '',
+  adsenseCode: '',
+  adsTxt: '',
+  metaTag: '',
 };
 
 const defaultPanels: Record<string, PanelConfig> = {

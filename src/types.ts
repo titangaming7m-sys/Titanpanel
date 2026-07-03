@@ -54,6 +54,11 @@ export interface WebsiteSettings {
   adPcBannerCode?: string;        // PC Panel Card ad placement
   adMobileBannerCode?: string;    // Mobile Panel Card ad placement
   adFreeBannerCode?: string;      // Free Panel Card ad placement
+
+  // Google AdSense Verification Fields
+  adsenseCode?: string;           // AdSense code snippet
+  adsTxt?: string;                // Ads.txt snippet
+  metaTag?: string;               // Meta tag verification
 }
 
 export interface DownloadLog {
